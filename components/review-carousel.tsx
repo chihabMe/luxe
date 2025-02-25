@@ -4,6 +4,7 @@ import { useState } from "react"
 import * as motion from "motion/react-m"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { StarRating } from "./star-rating"
+import Image from "next/image"
 import { AnimatePresence } from "motion/react"
 
 const reviews = [
@@ -61,7 +62,7 @@ export function ReviewCarousel() {
           </div>
           <StarRating rating={4.6} />
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <img src="/placeholder.svg" alt="Avis vérifiés" className="h-6 w-6" />
+            <Image width={70} height={70} src="/placeholder.svg" alt="Avis vérifiés" className="h-6 w-6" />
             <span>Avis vérifiés</span>
           </div>
         </div>

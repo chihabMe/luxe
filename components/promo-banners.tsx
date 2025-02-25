@@ -26,7 +26,7 @@ export function PromoBanners() {
             <div className="space-y-2">
               <p className="text-xl">Jusqu'à</p>
               <p className="text-[#FF7B7B] text-7xl font-bold">-80%</p>
-              <p className="text-lg">du prix boutique d'origine</p>
+              <p className="text-lg">du prix boutique d origine</p>
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -85,7 +85,7 @@ export function PromoBanners() {
             >
               <h2 className="text-2xl font-serif italic mb-2">Faire preuve de</h2>
               <h3 className="text-4xl font-bold mb-2">bon sens</h3>
-              <p className="text-xl font-serif italic mb-4">n'a jamais été</p>
+              <p className="text-xl font-serif italic mb-4">n a jamais été</p>
               <p className="text-4xl font-bold">aussi stylé</p>
             </motion.div>
 
