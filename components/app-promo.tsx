@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
+import * as motion from "motion/react-m"
 import Image from "next/image"
 
 export function AppPromo() {

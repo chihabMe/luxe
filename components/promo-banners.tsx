@@ -24,7 +24,7 @@ export function PromoBanners() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-xl">Jusqu'à</p>
+              <p className="text-xl">Jusqu à</p>
               <p className="text-[#FF7B7B] text-7xl font-bold">-80%</p>
               <p className="text-lg">du prix boutique d origine</p>
             </div>
