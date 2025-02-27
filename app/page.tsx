@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/navbar"
 import { Hero } from "@/components/hero"
 import { CategoryNav } from "@/components/category-nav"
 import { SeasonalCategories } from "@/components/seasonal-categories"
@@ -10,7 +9,6 @@ import { Newsletter } from "@/components/newsletter"
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <Navbar />
       <Hero />
       <CategoryNav />
       {/* <PromoBanners /> */}
