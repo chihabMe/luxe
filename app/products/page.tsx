@@ -1,15 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import * as motion from "motion/react-m";
-import {
-  Search,
-  Heart,
-  ShoppingBag,
-  User,
-  ChevronDown,
-  ChevronRight,
-  Link,
-} from "lucide-react";
+import { Heart, ChevronDown, ChevronRight } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -18,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -26,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Image from "next/image";
 
 // Product data based on the screenshots
 const products = [
@@ -112,7 +104,7 @@ const products = [
     price: 85.0,
     originalPrice: 170.0,
     discount: 50,
-    image: "/api/placeholder/280/350",
+    image: "/main-product-1.webp",
     category: "Blazers",
     isNew: false,
     isSecondHand: false,
@@ -202,7 +194,9 @@ const ProductCard = ({ product }: { product: (typeof products)[0] }) => {
             animate={isHovered ? { scale: 1.05 } : { scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <img
+            <Image
+              width={800}
+              height={800}
               src={product.image}
               alt={product.name}
               className="w-full h-64 object-cover"
@@ -235,7 +229,6 @@ const ProductCard = ({ product }: { product: (typeof products)[0] }) => {
 };
 
 const ProductsPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [visibleProducts, setVisibleProducts] = useState<typeof products>([]);
   const [showBanner, setShowBanner] = useState(true);
@@ -289,9 +282,9 @@ const ProductsPage = () => {
           <h2 className="text-4xl font-bold mb-2">
             Les bonnes affaires de la seconde main
           </h2>
-          <p className="text-xl mb-6">jusqu'à</p>
+            <p className="text-xl mb-6">jusqu&rsquo;à</p>
           <p className="text-5xl font-bold text-pink-600 mb-2">-80%</p>
-          <p className="mb-6">du prix boutique d'origine</p>
+          <p className="mb-6">du prix boutique d&apos;origine</p>
           <Button className="bg-black text-white hover:bg-gray-800">
             Découvrir
           </Button>
