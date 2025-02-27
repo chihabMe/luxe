@@ -15,7 +15,6 @@ const reviews = [
     experience: "19/02/2025",
     rating: 5,
     comment: "Ravie de la qualité des articles reçus. Excellent rapport qualité",
-    link: "voir plus",
   },
   {
     id: 2,
@@ -32,7 +31,6 @@ const reviews = [
     experience: "18/02/2025",
     rating: 4,
     comment: "Je pense que les vêtements ne sont pas assez protégés. La livrais",
-    link: "voir plus",
   },
   {
     id: 4,
@@ -80,8 +78,9 @@ export function ReviewCarousel() {
               {reviews.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage).map((review) => (
                 <div key={review.id} className="p-6 rounded-lg border border-gray-100 shadow-sm">
                   <StarRating rating={review.rating} size="sm" />
-                  <p className="mt-4 text-gray-600">{review.comment}</p>
-                  {review.link && <button className="mt-2 text-blue-500 text-sm hover:underline">{review.link}</button>}
+                    <p className="mt-4 text-gray-600 ">
+                    {review.comment.length > 100 ? `${review.comment.substring(0, 100)}...` : review.comment}
+                    </p>
                   <div className="mt-4 text-sm text-gray-500">
                     <p>Avis du {review.date}</p>
                     <p>

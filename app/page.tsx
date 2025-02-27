@@ -1,8 +1,6 @@
 import { Navbar } from "@/components/navbar"
 import { Hero } from "@/components/hero"
 import { CategoryNav } from "@/components/category-nav"
-import { PromoBanners } from "@/components/promo-banners"
-import { BrandShowcase } from "@/components/brand-showcase"
 import { SeasonalCategories } from "@/components/seasonal-categories"
 import { ShoppingAssistant } from "@/components/shopping-assistant"
 import { ReviewCarousel } from "@/components/review-carousel"
@@ -15,8 +13,8 @@ export default function Home() {
       <Navbar />
       <Hero />
       <CategoryNav />
-      <PromoBanners />
-      <BrandShowcase />
+      {/* <PromoBanners /> */}
+      {/* <BrandShowcase /> */}
       <SeasonalCategories />
       <ShoppingAssistant />
       <ReviewCarousel />

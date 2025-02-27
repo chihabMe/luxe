@@ -3,27 +3,32 @@
 import * as motion from "motion/react-m"
 import Image from "next/image"
 import Link from "next/link"
+import { ArrowRight } from 'lucide-react'
 
 const categories = [
   {
     title: "LES BLAZERS",
-    image: "/placeholder.svg",
-    link: "/categories/blazers",
+    image: "/product1.webp",
+    link: "/product1.webp",
+    fallbackImage: "/placeholder.svg?height=600&width=400",
   },
   {
     title: "LES VESTES EN CUIR ET SIMILI-CUIR",
-    image: "/placeholder.svg",
-    link: "/categories/leather-jackets",
+    image: "/product2.webp",
+    link: "/product2.webp",
+    fallbackImage: "/placeholder.svg?height=600&width=400",
   },
   {
     title: "LES TRENCHS",
-    image: "/placeholder.svg",
-    link: "/categories/trench-coats",
+    image: "/product1.webp",
+    link: "/product1.webp",
+    fallbackImage: "/placeholder.svg?height=600&width=400",
   },
   {
     title: "LES VESTES EN JEAN",
-    image: "/placeholder.svg",
-    link: "/categories/denim-jackets",
+    image: "/product2.webp",
+    link: "/product2.webp",
+    fallbackImage: "/placeholder.svg?height=600&width=400",
   },
 ]
 
@@ -47,32 +52,62 @@ export function SeasonalCategories() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group relative aspect-[3/4] rounded-2xl overflow-hidden"
+              className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/60" />
-
-              <div className="absolute inset-0">
+              {/* Multiple gradient overlays for better text protection */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80" />
+              
+              {/* Image with fallback */}
+              <div className="absolute inset-0 bg-gray-100">
                 <Image
                   src={category.image || "/placeholder.svg"}
                   alt={category.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = category.fallbackImage;
+                  }}
                 />
               </div>
 
-              <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                <div className="space-y-4">
-                  <h3 className="text-xl font-bold">{category.title}</h3>
+              {/* Content overlay */}
+              <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col items-start gap-4">
+                <h3 className="text-xl font-bold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">
+                  {category.title}
+                </h3>
+                
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="relative overflow-hidden rounded-full"
+                >
                   <Link
                     href={category.link}
-                    className="inline-block px-6 py-2 border border-white rounded-full
-                             text-sm font-medium hover:bg-white hover:text-black
-                             transition-colors duration-300"
+                    className="relative inline-flex items-center gap-2 px-6 py-2.5 
+                             bg-white text-black rounded-full
+                             text-sm font-medium shadow-[0_4px_14px_rgba(0,0,0,0.25)]
+                             transition duration-300 ease-out
+                             hover:bg-black hover:text-white
+                             group/button"
                   >
-                    DÉCOUVRIR
+                    <span className="relative z-10">DÉCOUVRIR</span>
+                    <ArrowRight 
+                      className="w-4 h-4 transition-transform duration-300 
+                                group-hover/button:translate-x-1" 
+                    />
+                    
+                    {/* Shine effect */}
+                    <div className="absolute inset-0 -translate-x-full group-hover/button:translate-x-full
+                                  bg-gradient-to-r from-transparent via-white/20 to-transparent
+                                  transition-transform duration-1000" 
+                    />
                   </Link>
-                </div>
+                </motion.div>
               </div>
+
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </motion.div>
           ))}
         </div>
@@ -80,4 +115,3 @@ export function SeasonalCategories() {
     </section>
   )
 }
-
