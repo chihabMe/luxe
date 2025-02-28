@@ -1,9 +1,8 @@
 "use client";
-import type React from "react"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Search, User, Heart, ShoppingBag, Menu, X, ChevronDown } from "lucide-react"
+import { Search,  Heart, ShoppingBag, Menu, X, ChevronDown } from "lucide-react"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -135,9 +134,8 @@ export function Navbar() {
                 className="pl-9 pr-4 h-9 focus:ring-1 focus:ring-[#FF7B7B]"
               />
             </div>
-            <NavIconButton icon={<User className="h-5 w-5" />} label="Compte" />
             <NavIconButton icon={<Heart className="h-5 w-5" />} label="Favoris" />
-            <NavIconButton icon={<ShoppingBag className="h-5 w-5" />} label="Panier" />
+            {/* <NavIconButton icon={<ShoppingBag className="h-5 w-5" />} label="Panier" /> */}
           </div>
 
           {/* Mobile Actions */}
@@ -149,9 +147,9 @@ export function Navbar() {
             >
               <Search className="h-5 w-5" />
             </button>
-            <NavIconButton icon={<User className="h-5 w-5" />} label="Compte" />
+            {/* <NavIconButton icon={<User className="h-5 w-5" />} label="Compte" /> */}
             <NavIconButton icon={<Heart className="h-5 w-5" />} label="Favoris" />
-            <NavIconButton icon={<ShoppingBag className="h-5 w-5" />} label="Panier" />
+            {/* <NavIconButton icon={<ShoppingBag className="h-5 w-5" />} label="Panier" /> */}
 
             {/* Mobile Menu */}
             <Sheet>

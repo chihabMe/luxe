@@ -42,7 +42,7 @@ const categories = [
   {
     name: "Beauté",
     description: "Soins & Bien-être",
-    image: "/category.webp",
+    image: "/hero-image-1.webp",
     itemCount: 193,
   },
 ]
@@ -79,7 +79,8 @@ export function CategoryNav() {
                     />
                   </div>
 
-                  {/* Gradient Overlay */}
+                  {/* Gradient Overlay - bottom gray for text visibility */}
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-gray-500/80 to-transparent" />
 
                   {/* Content Overlay */}
                   <div className="absolute inset-0 p-4 flex flex-col justify-between text-white">
@@ -92,7 +93,7 @@ export function CategoryNav() {
                       {category.description}
                     </motion.div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-1 relative z-10">
                       <h3 className="text-lg font-semibold tracking-wide">{category.name}</h3>
                       <p className="text-sm font-medium opacity-90">{category.itemCount} articles</p>
                     </div>
@@ -127,4 +128,3 @@ export function CategoryNav() {
     </section>
   )
 }
-

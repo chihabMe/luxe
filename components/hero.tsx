@@ -1,39 +1,23 @@
-
-import * as motion from "motion/react-m"
-import Image from "next/image"
-import Link from "next/link"
+import * as motion from "motion/react-m";
+import Image from "next/image";
+import Link from "next/link";
 
 const featuredCategories = [
   { title: "L'occasion offerte dès 50€", discount: "-80%" },
-  { title: "Livraison offerte dès 50€", text: "Expédition sous 48 points" },
+  { title: "Livraison offerte dès 50€", text: "Expédition sous 48h" },
   { title: "Bon sens", text: "aussi stylé" },
-]
+];
 const mainCategories = [
   { title: "FEMME", href: "/femme" },
   { title: "HOMME", href: "/homme" },
   { title: "FILLE", href: "/fille" },
   { title: "GARÇON", href: "/garcon" },
-]
-
+];
 
 export function Hero() {
   return (
     <section className="relative bg-[#FFF1F1] overflow-hidden">
       <div className="container mx-auto px-4 py-12 md:py-20">
-        {/* Curved shape background */}
-        <div className="absolute inset-0 right-0">
-          <svg
-            className="h-full w-full"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M0 0 L100 0 L100 100 Q50 80 0 100 Z" fill="#FF7B7B" opacity="0.1" />
-          </svg>
-        </div>
-
-        {/* Main content */}
         <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center mb-12">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -56,12 +40,18 @@ export function Hero() {
               Découvrir
             </Link>
             <div className="flex flex-wrap gap-3">
-              {mainCategories.map((category,index) => (
-                <motion.div key={category.title} initial={{opacity:0,y:-30}} animate={{opacity:1,y:0}} transition={{duration:0.5,delay:0.1*index}} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              {mainCategories.map((category, index) => (
+                <motion.div
+                  key={category.title}
+                  initial={{ opacity: 0, y: -30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 * index }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Link
                     href={category.href}
-                    className="inline-block px-8 py-3 rounded-full ring-2 hover:text-white ring-[#FF7B7B]/90 text-[#FF7B7B] 
-                             font-medium hover:bg-[#FF7B7B] transition-colors"
+                    className="inline-block px-8 py-3 rounded-full ring-2 hover:text-white ring-[#FF7B7B]/90 text-[#FF7B7B] font-medium hover:bg-[#FF7B7B] transition-colors"
                   >
                     {category.title}
                   </Link>
@@ -70,36 +60,28 @@ export function Hero() {
             </div>
           </motion.div>
 
-          {/* Images Grid with proper spacing and sizing */}
+          {/* Optimized Image Layout */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
-            className="relative w-full max-w-[600px] mx-auto lg:ml-auto"
+            className="relative w-full max-w-[500px] mx-auto lg:ml-auto"
           >
-            <div className="grid grid-cols-2 gap-4 md:gap-6">
-              {[1, 2, 3, 4].map((index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[1, 2].map((index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: 0.2 + index * 0.15, // Increased delay between each image
-                  }}
-                  className="relative w-full  rounded-xl overflow-hidden  "
-                  style={{
-                    height: 'calc((min(600px, 100vw) - 3rem) / 2)', // Responsive height based on width
-                    minHeight: '180px', // Minimum height on small screens
-                    maxHeight: '280px', // Maximum height on large screens
-                  }}
+                  transition={{ duration: 0.5, delay: 0.2 + index * 0.15 }}
+                  className="relative w-full h-[280px] rounded-xl overflow-hidden "
                 >
                   <Image
                     src={`/hero-image-${index}.webp`}
                     alt={`Category ${index}`}
                     fill
-                    className="object-contain p-2 hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 45vw, (max-width: 1200px) 280px, 300px"
+                    className="object-cover hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 280px, 400px"
                   />
                 </motion.div>
               ))}
@@ -107,7 +89,7 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* Featured categories */}
+        {/* Featured Categories */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -115,7 +97,10 @@ export function Hero() {
           className="relative grid md:grid-cols-3 gap-4 mt-8"
         >
           {featuredCategories.map((category, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <div
+              key={index}
+              className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            >
               <h3 className="font-semibold text-lg mb-2">{category.title}</h3>
               {category.discount ? (
                 <span className="text-[#FF7B7B] text-2xl font-bold">{category.discount}</span>
@@ -127,5 +112,5 @@ export function Hero() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
