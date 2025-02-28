@@ -15,17 +15,25 @@ import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { createProductCategory } from "../actions";
 import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { generateUploadSignature } from "@/utils/generateUploadSignature";
+import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   isFeatured: z.boolean().default(false),
+  mainCategoryId: z.string().min(1, "Main category is required"),
   image: z.instanceof(File).optional().nullable(),
 });
 
@@ -37,19 +45,27 @@ type ImagePreview = {
   file: File;
 };
 
-const initialValues: FormValues = {
-  name: "",
-  isFeatured: false,
-  image: null,
+type MainCategory = {
+  id: string;
+  name: string;
+  slug: string;
 };
 
-const AddNewCategoryForm = () => {
-  const { toast } = useToast();
+interface AddNewCategoryFormProps {
+  mainCategories: MainCategory[];
+}
+
+const AddNewCategoryForm = ({ mainCategories }: AddNewCategoryFormProps) => {
   const [imagePreview, setImagePreview] = useState<ImagePreview | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialValues,
+    defaultValues: {
+      name: "",
+      isFeatured: false,
+      mainCategoryId: "",
+      image: null,
+    },
   });
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,21 +75,13 @@ const AddNewCategoryForm = () => {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: `${file.name} is not an image file`,
-        variant: "destructive",
-      });
+      toast(`${file.name} is not an image file`);
       return;
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: "File too large",
-        description: `${file.name} is larger than 10MB`,
-        variant: "destructive",
-      });
+      toast(`${file.name} is larger than 10MB`);
       return;
     }
 
@@ -129,24 +137,27 @@ const AddNewCategoryForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("isFeatured", data.isFeatured.toString());
+      // First, upload the image if present
+      let imageUrl = "";
+      let cloudId = "";
 
-      // Handle image upload if present
-      if (imagePreview) {
+      if (imagePreview && imagePreview.file) {
         const uploadedImage = await uploadToCloudinary(imagePreview.file);
-        formData.append("imageUrl", uploadedImage?.url??"");
-        formData.append("cloudId", uploadedImage.cloudId);
+        imageUrl = uploadedImage?.url ?? "";
+        cloudId = uploadedImage?.cloudId ?? "";
       }
 
-      const response = await createProductCategory(formData);
+      // Now create the category with structured data
+      const response = await createProductCategory({
+        name: data.name,
+        isFeatured: data.isFeatured,
+        imageUrl: imageUrl,
+        cloudId: cloudId,
+        mainCategoryId: data.mainCategoryId,
+      });
 
       if (response?.data?.success) {
-        toast({
-          title: "Success",
-          description: "Category created successfully",
-        });
+        toast("Category created successfully");
         form.reset();
         setImagePreview(null);
       } else {
@@ -154,18 +165,16 @@ const AddNewCategoryForm = () => {
       }
     } catch (error) {
       console.error("Error creating category:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create category",
-        variant: "destructive",
-      });
+      toast(
+        error instanceof Error ? error.message : "Failed to create category"
+      );
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
-        <div className="grid grid-cols-1 gap-4 ">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-1 gap-4">
           <FormField
             control={form.control}
             name="name"
@@ -182,13 +191,39 @@ const AddNewCategoryForm = () => {
 
           <FormField
             control={form.control}
+            name="mainCategoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Main Category</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select main category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {mainCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="isFeatured"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base">
-                    Featured Category
-                  </FormLabel>
+                  <FormLabel className="text-base">Featured Category</FormLabel>
                   <FormDescription>
                     Display this category prominently on the website
                   </FormDescription>
@@ -219,7 +254,7 @@ const AddNewCategoryForm = () => {
                         {imagePreview ? (
                           <div className="relative">
                             <img
-                              src={imagePreview?.url??""}
+                              src={imagePreview?.url ?? ""}
                               alt="Preview"
                               className="w-full h-64 object-cover rounded-md"
                             />

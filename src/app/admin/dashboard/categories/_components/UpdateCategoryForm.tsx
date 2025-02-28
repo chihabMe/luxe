@@ -14,19 +14,28 @@ import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { updateProductCategory} from "../actions";
+import { updateProductCategory } from "../actions";
 import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { generateUploadSignature } from "@/utils/generateUploadSignature";
+import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const formSchema = z.object({
   id: z.string(),
   name: z.string().min(1, "Name is required"),
-  isFeatured: z.boolean().default(false),
-  image: z.instanceof(File).optional().nullable(),
+  slug: z.string().optional(),
+  isFeatured: z.boolean(),
+  image: z.any().optional(),
+  mainCategoryId: z.string().min(1, "Main category is required"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,15 +49,16 @@ type ImagePreview = {
 
 const UpdateCategoryForm = ({
   initialData,
+  mainCategories,
 }: {
-  initialData: FormValues & { imageUrl?: string };
+  initialData: FormValues & { image?: string };
+  mainCategories: { id: string; name: string; slug: string }[];
 }) => {
-  const { toast } = useToast();
   const [imagePreview, setImagePreview] = useState<ImagePreview | null>(
-    initialData.imageUrl
+    initialData.image
       ? {
           id: "existing-image",
-          url: initialData.imageUrl,
+          url: initialData.image,
           isExisting: true,
         }
       : null
@@ -58,7 +68,7 @@ const UpdateCategoryForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       ...initialData,
-      image: null,
+      image: undefined,
     },
   });
 
@@ -69,21 +79,13 @@ const UpdateCategoryForm = ({
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: `${file.name} is not an image file`,
-        variant: "destructive",
-      });
+      toast(`${file.name} is not an image file`);
       return;
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: "File too large",
-        description: `${file.name} is larger than 10MB`,
-        variant: "destructive",
-      });
+      toast(`${file.name} is larger than 10MB`);
       return;
     }
 
@@ -139,37 +141,33 @@ const UpdateCategoryForm = ({
 
   const onSubmit = async (data: FormValues) => {
     try {
-      let imageUrl = imagePreview?.isExisting ? imagePreview?.url??"" : "";
+      let imageUrl = imagePreview?.isExisting ? imagePreview?.url ?? "" : "";
+      let cloudId = "";
 
       // Upload new image to Cloudinary if exists
       if (imagePreview?.file) {
         const uploadedImage = await uploadToCloudinary(imagePreview.file);
-        imageUrl = uploadedImage?.url??"";
+        imageUrl = uploadedImage?.url ?? "";
+        cloudId = uploadedImage?.cloudId ?? "";
       }
 
-      const formData = new FormData();
-      formData.append("id", data.id);
-      formData.append("name", data.name);
-      formData.append("isFeatured", data.isFeatured.toString());
-      formData.append("imageUrl", imageUrl);
-
-      const response = await updateProductCategory(formData);
+      const response = await updateProductCategory({
+        id: data.id,
+        name: data.name,
+        isFeatured: data.isFeatured,
+        imageUrl: imageUrl,
+        cloudId: cloudId,
+        mainCategoryId: data.mainCategoryId,
+      });
 
       if (response?.data?.success) {
-        toast({
-          title: "Success",
-          description: "Category has been updated",
-        });
+        toast("Category has been updated");
       } else {
         throw new Error("Failed to update category");
       }
     } catch (error) {
       console.error("Error updating category:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update category",
-        variant: "destructive",
-      });
+      toast("Failed to update category");
     }
   };
 
@@ -186,6 +184,34 @@ const UpdateCategoryForm = ({
                 <FormControl>
                   <Input placeholder="Category name" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="mainCategoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Main Category</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select main category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {mainCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -228,7 +254,7 @@ const UpdateCategoryForm = ({
                         {imagePreview ? (
                           <div className="relative">
                             <img
-                              src={imagePreview?.url??""}
+                              src={imagePreview?.url ?? ""}
                               alt="Preview"
                               className="w-full h-64 object-cover rounded-md"
                             />

@@ -24,26 +24,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
-// import { useToast } from "@/hooks/use-toast";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import { deleteProductCategory } from "../actions";
 import CreateCategoryModal from "@/components/modals/CreateCategoryModal";
 import { useRouter } from "next/navigation";
 import UpdateCategoryModal from "@/components/modals/UpdateCategoryModal";
+import { toast } from "sonner";
+import { getAllMainCategories } from "@/app/data/main-categories-data";
 
 interface Props {
   data: Awaited<ReturnType<typeof getCategories>>["data"];
+  mainCategories: Awaited<ReturnType<typeof getAllMainCategories>>;
   count: number;
   currentPage: number;
   searchTerm: string;
 }
 
-export default function AdminCategorysTable({
+export default function AdminCategoryTable({
   data,
   count,
   currentPage,
+  mainCategories,
   searchTerm,
 }: Props) {
   const router = useRouter();
@@ -76,7 +78,7 @@ export default function AdminCategorysTable({
       <CardHeader>
         <div className="flex items-center justify-between space-x-6">
           <CardTitle>Categorys Dashboard</CardTitle>
-          <CreateCategoryModal />
+          <CreateCategoryModal mainCategories={mainCategories} />
         </div>
       </CardHeader>
       <CardContent className="min-h-[calc(100vh-328px)]">
@@ -93,13 +95,18 @@ export default function AdminCategorysTable({
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>main category</TableHead>
               <TableHead>Created at</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.map((item) => (
-              <TableItem key={item.id} category={item} />
+              <TableItem
+                mainCategories={mainCategories}
+                key={item.id}
+                category={item}
+              />
             ))}
           </TableBody>
         </Table>
@@ -112,12 +119,14 @@ export default function AdminCategorysTable({
 }
 interface TableItemProps {
   category: Awaited<ReturnType<typeof getCategories>>["data"][0];
+  mainCategories: Awaited<ReturnType<typeof getAllMainCategories>>;
 }
-const TableItem = ({ category }: TableItemProps) => {
+const TableItem = ({ category, mainCategories }: TableItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <UpdateCategoryModal
+        mainCategories={mainCategories}
         closeModal={() => setIsOpen(false)}
         open={isOpen}
         category={category}
@@ -127,6 +136,9 @@ const TableItem = ({ category }: TableItemProps) => {
           {category.name.slice(0, 20)}
           {category.name.length > 20 && "..."}
         </TableCell>
+        <TableCell className=" md:min-w-32">
+          {mainCategories.find((c) => c.id === category.mainCategoryId)?.name}
+          </TableCell>
         <TableCell>{category.createdAt?.toLocaleDateString()}</TableCell>
         <TableCell onClick={(e) => e.stopPropagation()}>
           <CategoryActionsMenu category={category} />
@@ -141,20 +153,14 @@ interface CategoryActionsMenuProps {
 }
 
 export const CategoryActionsMenu = ({ category }: CategoryActionsMenuProps) => {
-  const { toast } = useToast();
   const deleteCategoryHandler = async () => {
     const result = await deleteProductCategory({
       id: category.id,
     });
     if (result?.data?.success) {
-      toast({
-        title: "Category deleted",
-      });
+      toast("Category deleted");
     } else {
-      toast({
-        title: "Failed to delete category",
-        variant: "destructive",
-      });
+      toast("Failed to delete category");
     }
   };
 

@@ -1,6 +1,7 @@
 import { PagePaginator } from "@/components/PagePaginator";
 import { getCategories } from "@/app/data/categories-data";
 import AdminCategoriesTable from "./_components/AdminCategoriesTable";
+import { getAllMainCategories } from "@/app/data/main-categories-data";
 
 export default async function CategoryDashboard(props: {
   searchParams?: Promise<{ [key: string]: string | string[] }>;
@@ -11,6 +12,7 @@ export default async function CategoryDashboard(props: {
     page: parseInt(page),
     q: searchParams?.search as string,
   });
+  const mainCategories = await getAllMainCategories();
 
   const searchTerm = (searchParams?.search as string) || "";
   return (
@@ -18,6 +20,7 @@ export default async function CategoryDashboard(props: {
       <div className="flex min-h-[calc(100vh-228px)] justify-center">
         <AdminCategoriesTable
           currentPage={parseInt(page)}
+          mainCategories={mainCategories}
           count={count}
           data={data}
           searchTerm={searchTerm}
