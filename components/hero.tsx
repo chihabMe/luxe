@@ -8,7 +8,6 @@ const featuredCategories = [
   { title: "Bon sens", text: "aussi stylé" },
 ];
 const mainCategories = [
-  { title: "FEMME", href: "/femme" },
   { title: "HOMME", href: "/homme" },
   { title: "FILLE", href: "/fille" },
   { title: "GARÇON", href: "/garcon" },

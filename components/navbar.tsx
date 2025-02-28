@@ -69,7 +69,7 @@ export function Navbar() {
           <div className="hidden lg:block">
             <NavigationMenu>
               <NavigationMenuList>
-                {["FEMME", "HOMME", "ENFANT", "MARQUES"].map((item) => (
+                {["HOMME", "ENFANT", "MARQUES"].map((item) => (
                   <NavigationMenuItem key={item}>
                     <NavigationMenuTrigger className="text-sm font-medium transition-colors hover:text-[#FF7B7B] data-[state=open]:text-[#FF7B7B]">
                       {item}
