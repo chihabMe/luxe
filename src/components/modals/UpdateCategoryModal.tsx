@@ -2,14 +2,21 @@
 import UpdateCategoryForm from "@/app/admin/dashboard/categories/_components/UpdateCategoryForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { getCategories } from "@/app/data/categories-data";
+import { getAllMainCategories } from "@/app/data/main-categories-data";
 
 interface Props {
   category: Awaited<ReturnType<typeof getCategories>>["data"][0];
+  mainCategories: Awaited<ReturnType<typeof getAllMainCategories>>;
   open: boolean;
   closeModal: () => void;
 }
 
-const UpdateCategoryModal = ({ category, closeModal, open }: Props) => {
+const UpdateCategoryModal = ({
+  category,
+  closeModal,
+  open,
+  mainCategories,
+}: Props) => {
   return (
     <>
       <Dialog open={open} onOpenChange={closeModal}>
@@ -18,11 +25,13 @@ const UpdateCategoryModal = ({ category, closeModal, open }: Props) => {
             <DialogTitle>Update Product</DialogTitle>
           </DialogHeader>
           <UpdateCategoryForm
+            mainCategories={mainCategories}
             initialData={{
               ...category,
               isFeatured: category.isFeatured ?? false,
-              imageUrl: category.image ?? "",
-              image: null,
+              image: category.image ?? "",
+              name: category.name,
+              mainCategoryId: category.mainCategoryId,
             }}
           />
         </DialogContent>

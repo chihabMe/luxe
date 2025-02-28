@@ -3,14 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { PlusIcon } from "lucide-react";
-import AddNewCategoryForm from "@/app/admin/dashboard/categories/_components/AddNewCategoryForm";
-import { getAllMainCategories } from "@/app/data/main-categories-data";
+import AddNewMainCategoryForm from "@/app/admin/dashboard/main-categories/_components/AddNewMainCategoryForm";
 
-const CreateCategoryModal = ({
-  mainCategories,
-}: {
-  mainCategories: Awaited<ReturnType<typeof getAllMainCategories>>;
-}) => {
+const CreateMainCategoryModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const openModal = () => setIsOpen(true);
 
@@ -26,7 +21,7 @@ const CreateCategoryModal = ({
             {/* <DialogDescription>
               this admin category will be able to manage the admin page
             </DialogDescription> */}
-            <AddNewCategoryForm mainCategories={mainCategories} />
+            <AddNewMainCategoryForm   />
           </DialogHeader>
         </DialogContent>
       </Dialog>
@@ -34,4 +29,4 @@ const CreateCategoryModal = ({
   );
 };
 
-export default CreateCategoryModal;
+export default CreateMainCategoryModal;

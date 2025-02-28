@@ -8,6 +8,7 @@ import {
   Home,
   Users,
   DollarSign,
+  BookAIcon
 } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -28,6 +29,12 @@ const paths: IPath[] = [
     name: "users",
     icon: <Users className="h-5 w-5" />,
     href: "/admin/dashboard/users",
+  },
+
+  {
+    name: "Main Categories",
+    icon: <BookAIcon className="h-5 w-5" />,
+    href: "/admin/dashboard/main-categories",
   },
 
   {
