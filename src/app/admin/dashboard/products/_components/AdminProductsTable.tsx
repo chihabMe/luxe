@@ -150,15 +150,9 @@ const TableItem = ({ product, mainCategories, categories }: TableItemProps) => {
           {product.name.length > 20 && "..."}
         </TableCell>
 
-        <TableCell>
-          {mainCategories.find((mc) => mc.id == product.mainCategoryId)?.name}
-          {product.mainCategoryId}
-        </TableCell>
+        <TableCell>{product.category.mainCategory.name}</TableCell>
 
-        <TableCell>
-          {categories.find((category) => category.id === product.categoryId)
-            ?.name || "Unknown"}
-        </TableCell>
+        <TableCell>{product.category.name}</TableCell>
         <TableCell>{product.mark}</TableCell>
         <TableCell>
           {product.isFeatured ? (

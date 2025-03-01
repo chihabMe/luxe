@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -57,6 +57,7 @@ type ImagePreview = {
   url: string;
   file?: File;
   isExisting?: boolean;
+  isMain?: boolean;
 };
 
 const UpdateProductForm = ({
@@ -78,6 +79,12 @@ const UpdateProductForm = ({
       isExisting: true,
     }))
   );
+  const [clientLoaded, setClientLoaded] = useState(false);
+
+  // Ensure component has mounted before rendering dynamic content
+  useEffect(() => {
+    setClientLoaded(true);
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -89,7 +96,12 @@ const UpdateProductForm = ({
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { 
+    fields: specFields, 
+    append: appendSpec, 
+    remove: removeSpec,
+    update: updateSpec 
+  } = useFieldArray({
     control: form.control,
     name: "specifications",
   });
@@ -143,6 +155,38 @@ const UpdateProductForm = ({
       "images",
       imagePreviews.filter((p) => p.id !== id)
     );
+  };
+
+  const setMainImage = (id: string) => {
+    setImagePreviews((previews) =>
+      previews.map((preview) => ({
+        ...preview,
+        isMain: preview.id === id,
+      }))
+    );
+  };
+
+  const addValueToSpec = (specIndex: number) => {
+    const currentSpec = form.getValues(`specifications.${specIndex}`);
+    const updatedValues = [...currentSpec.values, ""];
+    
+    // Update the specific spec with new values array
+    updateSpec(specIndex, {
+      name: currentSpec.name,
+      values: updatedValues
+    });
+  };
+
+  const removeValueFromSpec = (specIndex: number, valueIndex: number) => {
+    const currentSpec = form.getValues(`specifications.${specIndex}`);
+    const updatedValues = [...currentSpec.values];
+    updatedValues.splice(valueIndex, 1);
+    
+    // Update the specific spec with filtered values array
+    updateSpec(specIndex, {
+      name: currentSpec.name,
+      values: updatedValues
+    });
   };
 
   const uploadToCloudinary = async (file: File) => {
@@ -220,10 +264,15 @@ const UpdateProductForm = ({
     }
   };
 
+  // If client hasn't loaded yet (on server render), use an empty placeholder
+  if (!clientLoaded) {
+    return <div>Loading form...</div>;
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="name"
@@ -243,7 +292,7 @@ const UpdateProductForm = ({
             name="mark"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mark</FormLabel>
+                <FormLabel>Brand/Mark</FormLabel>
                 <FormControl>
                   <Input placeholder="Product mark" {...field} />
                 </FormControl>
@@ -251,93 +300,33 @@ const UpdateProductForm = ({
               </FormItem>
             )}
           />
+        </div>
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    rows={10}
-                    className="resize-none"
-                    placeholder="Product description"
-                    {...field}
-                  />
-                </FormControl>
-                <div>
-                  <span className="text-gray-800 text-xs font-medium">
-                    {form.getValues("description").length}/{MAX_CHARS}
-                  </span>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div>
-            <FormLabel>Specifications</FormLabel>
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex flex-col gap-2 mt-2 border p-3 rounded-md">
-                <FormField
-                  control={form.control}
-                  name={`specifications.${index}.name`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Specification Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Spec name" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  rows={6}
+                  className="resize-none"
+                  placeholder="Product description"
+                  {...field}
                 />
-                
-                <FormField
-                  control={form.control}
-                  name={`specifications.${index}.values`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Specification Values</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter values separated by commas"
-                          value={field.value?.join(', ')}
-                          onChange={(e) => {
-                            const values = e.target.value.split(',').map(v => v.trim()).filter(Boolean);
-                            field.onChange(values);
-                          }}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Enter multiple values separated by commas
-                      </FormDescription>
-                    </FormItem>
-                  )}
-                />
-                
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  className="self-end"
-                  onClick={() => remove(index)}
-                >
-                  <X className="h-4 w-4 mr-2" /> Remove Specification
-                </Button>
+              </FormControl>
+              <div>
+                <span className="text-gray-800 text-xs font-medium">
+                  {form.getValues("description").length}/{MAX_CHARS}
+                </span>
               </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={() => append({ name: "", values: [""] })}
-            >
-              <Plus className="h-4 w-4 mr-2" /> Add Specification
-            </Button>
-          </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="category"
@@ -395,106 +384,208 @@ const UpdateProductForm = ({
               )}
             />
           )}
+        </div>
 
-          <div className="flex flex-col space-y-4">
-            <FormField
-              control={form.control}
-              name="isFeatured"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Featured Product
-                    </FormLabel>
-                    <FormDescription>
-                      Show this product in featured sections
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+        <div>
+          <FormLabel>Product Specifications</FormLabel>
+          <div className="mt-2 space-y-4">
+            {specFields.map((field, index) => (
+              <Card key={field.id} className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <FormField
+                    control={form.control}
+                    name={`specifications.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem className="flex-1 mr-2">
+                        <FormLabel>Specification Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Color, Size" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="mt-6"
+                    onClick={() => removeSpec(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="ml-4 mt-2">
+                  <FormLabel>Values</FormLabel>
+                  {field.values.map((_, valueIndex) => (
+                    <div key={`${field.id}-value-${valueIndex}`} className="flex items-center mt-2">
+                      <FormField
+                        control={form.control}
+                        name={`specifications.${index}.values.${valueIndex}`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <Input placeholder="e.g. Red, XL" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeValueFromSpec(index, valueIndex)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => addValueToSpec(index)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" /> Add Value
+                  </Button>
+                </div>
+              </Card>
+            ))}
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => appendSpec({ name: "", values: [""] })}
+            >
+              <Plus className="h-4 w-4 mr-2" /> Add Specification
+            </Button>
           </div>
+        </div>
 
+        <div className="flex flex-col space-y-4">
           <FormField
             control={form.control}
-            name="images"
-            render={({ field }) => {
-              const { value, onChange, ...restField } = field;
-              void value;
-              void onChange;
-              return (
-                <FormItem>
-                  <FormLabel>Product Images</FormLabel>
-                  <FormControl>
-                    <Card className="border-2 border-dashed">
-                      <CardContent className="flex flex-col items-center justify-center p-6 space-y-4">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
-                          {imagePreviews.map((preview) => (
-                            <div key={preview.id} className="relative">
-                              <img
-                                src={preview.url ?? ""}
-                                alt="Preview"
-                                className="w-full h-32 object-cover rounded-md"
-                              />
+            name="isFeatured"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">
+                    Featured Product
+                  </FormLabel>
+                  <FormDescription>
+                    Show this product in featured sections
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="images"
+          render={({ field }) => {
+            const { value, onChange, ...restField } = field;
+            void value;
+            void onChange;
+            return (
+              <FormItem>
+                <FormLabel>Product Images</FormLabel>
+                <FormControl>
+                  <Card className="border-2 border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center p-6 space-y-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
+                        {imagePreviews.map((preview) => (
+                          <div 
+                            key={preview.id} 
+                            className={`relative ${
+                              preview.isMain ? "ring-2 ring-blue-500" : ""
+                            }`}
+                          >
+                            <img
+                              src={preview.url ?? ""}
+                              alt="Preview"
+                              className="w-full h-32 object-cover rounded-md"
+                            />
+                            <div className="absolute top-2 right-2 flex gap-1">
+                              {!preview.isMain && (
+                                <Button
+                                  type="button"
+                                  variant="secondary"
+                                  size="icon"
+                                  className="h-6 w-6 bg-white"
+                                  title="Set as main image"
+                                  onClick={() => setMainImage(preview.id)}
+                                >
+                                  <span className="text-xs">★</span>
+                                </Button>
+                              )}
                               <Button
                                 type="button"
                                 variant="destructive"
                                 size="icon"
-                                className="absolute top-2 right-2 h-6 w-6"
+                                className="h-6 w-6"
                                 onClick={() => removeImage(preview.id)}
                               >
                                 <X className="h-4 w-4" />
                               </Button>
                             </div>
-                          ))}
-                        </div>
+                            {preview.isMain && (
+                              <div className="absolute bottom-0 left-0 right-0 bg-blue-500 text-white text-xs text-center py-1">
+                                Main Image
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
 
-                        {imagePreviews.length < MAX_FILES && (
-                          <>
-                            <Upload className="w-8 h-8 text-gray-400" />
-                            <div className="text-center">
-                              <Button
-                                type="button"
-                                variant="secondary"
-                                onClick={() => {
-                                  document
-                                    .getElementById("image-upload")
-                                    ?.click();
-                                }}
-                              >
-                                Choose Images
-                              </Button>
-                            </div>
-                            <p className="text-sm text-gray-500">
-                              PNG, JPG up to 10MB (Maximum {MAX_FILES} images)
-                            </p>
-                          </>
-                        )}
+                      {imagePreviews.length < MAX_FILES && (
+                        <>
+                          <Upload className="w-8 h-8 text-gray-400" />
+                          <div className="text-center">
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              onClick={() => {
+                                document
+                                  .getElementById("image-upload")
+                                  ?.click();
+                              }}
+                            >
+                              Choose Images
+                            </Button>
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            PNG, JPG up to 10MB (Maximum {MAX_FILES} images)
+                          </p>
+                        </>
+                      )}
 
-                        <Input
-                          id="image-upload"
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          className="hidden"
-                          onChange={handleImageChange}
-                          {...restField}
-                        />
-                      </CardContent>
-                    </Card>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              );
-            }}
-          />
-        </div>
+                      <Input
+                        id="image-upload"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={handleImageChange}
+                        {...restField}
+                      />
+                    </CardContent>
+                  </Card>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
 
         <div className="flex w-full justify-end">
           <Button
