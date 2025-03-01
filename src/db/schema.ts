@@ -8,12 +8,18 @@ import {
   timestamp,
   uuid,
   varchar,
+  unique,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 // Enums
 export const userRoleEnum = pgEnum("user_role", ["admin"]);
-export const seasonEnum = pgEnum("season", ["hiver", "printemps", "ete", "automne"]);
+export const seasonEnum = pgEnum("season", [
+  "hiver",
+  "printemps",
+  "ete",
+  "automne",
+]);
 
 export const mainCategories = pgTable("main_categories", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -27,22 +33,25 @@ export const mainCategories = pgTable("main_categories", {
     .$onUpdate(() => new Date()),
 });
 
-export const categories = pgTable("categories", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-  image: text("image").default(""),
-  isFeatured: boolean("is_featured").default(false),
-  mainCategoryId: uuid("main_category_id")
-    .notNull()
-    .references(() => mainCategories.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-});
-
+export const categories = pgTable(
+  "categories",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
+    image: text("image").default(""),
+    isFeatured: boolean("is_featured").default(false),
+    mainCategoryId: uuid("main_category_id")
+      .notNull()
+      .references(() => mainCategories.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [unique().on(table.slug, table.mainCategoryId)]
+);
 
 // Products Table
 export const products = pgTable("products", {
@@ -177,15 +186,20 @@ export const selectMainCategorySchema = createSelectSchema(mainCategories);
 export const insertCategorySchema = createInsertSchema(categories);
 export const selectCategorySchema = createSelectSchema(categories);
 
-
 export const insertProductSchema = createInsertSchema(products);
 export const selectProductSchema = createSelectSchema(products);
 
-export const insertProductSpecificationSchema = createInsertSchema(productSpecifications);
-export const selectProductSpecificationSchema = createSelectSchema(productSpecifications);
+export const insertProductSpecificationSchema = createInsertSchema(
+  productSpecifications
+);
+export const selectProductSpecificationSchema = createSelectSchema(
+  productSpecifications
+);
 
-export const insertSpecificationValueSchema = createInsertSchema(specificationValues);
-export const selectSpecificationValueSchema = createSelectSchema(specificationValues);
+export const insertSpecificationValueSchema =
+  createInsertSchema(specificationValues);
+export const selectSpecificationValueSchema =
+  createSelectSchema(specificationValues);
 
 export const insertProductImageSchema = createInsertSchema(productImages);
 export const selectProductImageSchema = createSelectSchema(productImages);

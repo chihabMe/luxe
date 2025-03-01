@@ -9,7 +9,11 @@ import { z } from "zod";
 
 export const getAllMainCategories = unstable_cache(
   async () => {
-    return await db.query.mainCategories.findMany({});
+    return await db.query.mainCategories.findMany({
+      with: {
+        categories: true,
+      },
+    });
   },
   ["main_categories"],
   {
@@ -72,4 +76,3 @@ export const getTotalMainCategoriesCount = cache(
     return Number(result[0]?.count ?? 0);
   }
 );
-

@@ -1,7 +1,7 @@
 "use server";
 import { categories, mainCategories } from "@/db/schema";
 import { actionClient, protectedActionClient } from "@/lib/safe-actions";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import slugify from "slugify";
@@ -22,14 +22,14 @@ export const updateProductCategory = protectedActionClient
       const mainCategory = await ctx.db.query.mainCategories.findFirst({
         where: eq(mainCategories.id, parsedInput.mainCategoryId),
       });
-      
+
       if (!mainCategory) {
-        return { 
-          success: false, 
-          error: "Main category not found" 
+        return {
+          success: false,
+          error: "Main category not found",
         };
       }
-      
+
       // Start a transaction to ensure data consistency
       const result = await ctx.db.transaction(async (tx) => {
         // Generate new slug based on name
@@ -62,10 +62,10 @@ export const updateProductCategory = protectedActionClient
       revalidatePath("/admin/dashboard/categories");
       revalidatePath("/admin/dashboard/products");
       revalidatePath("/");
-      
-      return { 
+
+      return {
         success: true,
-        data: { success: true } 
+        data: { success: true },
       };
     } catch (err) {
       console.error("Error updating product category:", err);
@@ -112,16 +112,19 @@ export const createProductCategory = actionClient
     try {
       // Generate slug from name
       const slug = slugify(parsedInput.name, { lower: true });
-      
+
       // Check if slug already exists
       const existingCategory = await ctx.db.query.categories.findFirst({
-        where: eq(categories.slug, slug),
+        where: and(
+          eq(categories.slug, slug),
+          eq(categories.mainCategoryId, parsedInput.mainCategoryId)
+        ),
       });
-      
+
       if (existingCategory) {
         return {
           success: false,
-          error: "A category with this name already exists"
+          error: "A category with this name already exists",
         };
       }
 
@@ -142,13 +145,13 @@ export const createProductCategory = actionClient
       revalidateTag("active_product_categories");
       revalidatePath("/admin/dashboard/categories");
       revalidatePath("/");
-      
-      return { 
-        success: true, 
-        data: { 
+
+      return {
+        success: true,
+        data: {
           success: true,
-          id: result[0]?.id
-        } 
+          id: result[0]?.id,
+        },
       };
     } catch (err) {
       console.error("Error creating product category:", err);
