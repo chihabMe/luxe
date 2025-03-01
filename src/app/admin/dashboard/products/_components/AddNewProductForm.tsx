@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -42,7 +42,7 @@ const formSchema = z.object({
     .min(10, "Description must be at least 10 characters."),
   isFeatured: z.boolean().default(false),
   category: z.string({ required_error: "Please select a category." }),
-  mainCategory: z.string({ required_error: "Please select a main  category." }),
+  mainCategory: z.string({ required_error: "Please select a main category." }),
   imageUrls: z.array(z.string()),
   cloudIds: z.array(z.string()),
   specifications: z.array(
@@ -53,15 +53,6 @@ const formSchema = z.object({
   ),
 });
 
-type SpecificationValue = {
-  value: string;
-};
-
-type Specification = {
-  name: string;
-  values: SpecificationValue[];
-};
-
 type FormValues = {
   name: string;
   mark: string;
@@ -69,10 +60,14 @@ type FormValues = {
   isFeatured: boolean;
   mainCategory: string;
   category: string;
-  specifications: Specification[];
+  specifications: {
+    name: string;
+    values: string[];
+  }[];
   cloudIds: string[];
   imageUrls: string[];
 };
+
 type ImagePreview = {
   id: string;
   url: string;
@@ -101,6 +96,13 @@ const AddNewProductForm = ({
 }) => {
   const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
   const [filteredCategories, setFilteredCategories] = useState(categories);
+  const [clientLoaded, setClientLoaded] = useState(false);
+  const [showMainCategoryForm, setShowMainCategoryForm] = useState(false);
+
+  // Ensure component has mounted before rendering dynamic content
+  useEffect(() => {
+    setClientLoaded(true);
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -111,20 +113,19 @@ const AddNewProductForm = ({
     fields: specFields,
     append: appendSpec,
     remove: removeSpec,
+    update: updateSpec,
   } = useFieldArray({
     control: form.control,
     name: "specifications",
   });
 
-  // Use useFieldArray for nested values arrays
-  const getSpecValueFields = (index: number) => {
-    return useFieldArray({
-      control: form.control,
-      name: `specifications.${index}.values`,
-    });
-  };
-
   const handleMainCategoryChange = (value: string) => {
+    if (value === "add-new") {
+      setShowMainCategoryForm(true);
+      return;
+    }
+    
+    setShowMainCategoryForm(false);
     form.setValue("mainCategory", value);
     form.setValue("category", ""); // Reset subcategory when main category changes
 
@@ -135,6 +136,7 @@ const AddNewProductForm = ({
     );
     setFilteredCategories(filtered);
   };
+
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -247,6 +249,29 @@ const AddNewProductForm = ({
     }
   };
 
+  const addValueToSpec = (specIndex: number) => {
+    const currentSpec = form.getValues(`specifications.${specIndex}`);
+    const updatedValues = [...currentSpec.values, ""];
+    
+    // Update the specific spec with new values array
+    updateSpec(specIndex, {
+      name: currentSpec.name,
+      values: updatedValues
+    });
+  };
+
+  const removeValueFromSpec = (specIndex: number, valueIndex: number) => {
+    const currentSpec = form.getValues(`specifications.${specIndex}`);
+    const updatedValues = [...currentSpec.values];
+    updatedValues.splice(valueIndex, 1);
+    
+    // Update the specific spec with filtered values array
+    updateSpec(specIndex, {
+      name: currentSpec.name,
+      values: updatedValues
+    });
+  };
+
   const onSubmit = async (data: FormValues) => {
     try {
       const uploadPromises = imagePreviews.map((preview) =>
@@ -255,12 +280,6 @@ const AddNewProductForm = ({
 
       const uploadedImages = await Promise.all(uploadPromises);
 
-      // Convert specifications format to match the new schema
-      const processedSpecifications = data.specifications.map((spec) => ({
-        name: spec.name,
-        values: spec.values.map((val) => val.value),
-      }));
-
       const response = await createProduct({
         name: data.name,
         description: data.description,
@@ -268,7 +287,7 @@ const AddNewProductForm = ({
         mark: data.mark,
         mainCategory: data.mainCategory,
         category: data.category,
-        specifications: processedSpecifications,
+        specifications: data.specifications,
         imageUrls: uploadedImages.map((img) => img.url),
         cloudIds: uploadedImages.map((img) => img.cloudId),
       });
@@ -285,6 +304,11 @@ const AddNewProductForm = ({
       toast("Failed to create product");
     }
   };
+
+  // If client hasn't loaded yet (on server render), use an empty placeholder
+  if (!clientLoaded) {
+    return <div>Loading form...</div>;
+  }
 
   return (
     <Form {...form}>
@@ -350,23 +374,23 @@ const AddNewProductForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Main Category</FormLabel>
-                <Select
-                  onValueChange={(value) => handleMainCategoryChange(value)}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a main category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {mainCategories.map((category) => (
-                      <SelectItem key={category.id} value={category.slug}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Select
+                    onValueChange={(value) => handleMainCategoryChange(value)}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a main category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {mainCategories.map((category) => (
+                        <SelectItem key={category.id} value={category.slug}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -381,7 +405,7 @@ const AddNewProductForm = ({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  disabled={!form.getValues("mainCategory")}
+                  disabled={!form.getValues("mainCategory") || showMainCategoryForm}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -405,86 +429,75 @@ const AddNewProductForm = ({
         <div>
           <FormLabel>Product Specifications</FormLabel>
           <div className="mt-2 space-y-4">
-            {specFields.map((field, index) => {
-              const {
-                fields: valueFields,
-                append: appendValue,
-                remove: removeValue,
-              } = getSpecValueFields(index);
+            {specFields.map((field, index) => (
+              <Card key={field.id} className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <FormField
+                    control={form.control}
+                    name={`specifications.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem className="flex-1 mr-2">
+                        <FormLabel>Specification Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Color, Size" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="mt-6"
+                    onClick={() => removeSpec(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
 
-              return (
-                <Card key={field.id} className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <FormField
-                      control={form.control}
-                      name={`specifications.${index}.name`}
-                      render={({ field }) => (
-                        <FormItem className="flex-1 mr-2">
-                          <FormLabel>Specification Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g. Color, Size" {...field} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="mt-6"
-                      onClick={() => removeSpec(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <div className="ml-4 mt-2">
-                    <FormLabel>Values</FormLabel>
-                    {valueFields.map((valueField, valueIndex) => (
-                      <div
-                        key={valueField.id}
-                        className="flex items-center mt-2"
+                <div className="ml-4 mt-2">
+                  <FormLabel>Values</FormLabel>
+                  {field.values.map((_, valueIndex) => (
+                    <div key={`${field.id}-value-${valueIndex}`} className="flex items-center mt-2">
+                      <FormField
+                        control={form.control}
+                        name={`specifications.${index}.values.${valueIndex}`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <Input placeholder="e.g. Red, XL" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeValueFromSpec(index, valueIndex)}
                       >
-                        <FormField
-                          control={form.control}
-                          name={`specifications.${index}.values.${valueIndex}.value`}
-                          render={({ field }) => (
-                            <FormItem className="flex-1">
-                              <FormControl>
-                                <Input placeholder="e.g. Red, XL" {...field} />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeValue(valueIndex)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => appendValue({ value: "" })}
-                    >
-                      <Plus className="h-4 w-4 mr-2" /> Add Value
-                    </Button>
-                  </div>
-                </Card>
-              );
-            })}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => addValueToSpec(index)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" /> Add Value
+                  </Button>
+                </div>
+              </Card>
+            ))}
 
             <Button
               type="button"
               variant="outline"
-              onClick={() => appendSpec({ name: "", values: [{ value: "" }] })}
+              onClick={() => appendSpec({ name: "", values: [""] })}
             >
               <Plus className="h-4 w-4 mr-2" /> Add Specification
             </Button>

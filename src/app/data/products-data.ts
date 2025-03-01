@@ -49,7 +49,6 @@ export const searchAndFilterInAllProducts = cache(
       );
     }
 
-
     if (marks && marks.length > 0) {
       filters.push(inArray(products.mark, marks));
     }
@@ -183,8 +182,16 @@ export const getProducts = cache(
       offset: (page - 1) * PAGE_SIZE,
       with: {
         images: true,
-        category: true,
-        specifications: true,
+        category: {
+          with: {
+            mainCategory: true,
+          },
+        },
+        specifications: {
+          with: {
+            values:true
+          },
+        },
       },
     });
 

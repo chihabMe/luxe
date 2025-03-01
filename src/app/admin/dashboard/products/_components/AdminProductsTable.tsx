@@ -102,7 +102,9 @@ export default function AdminProductsTable({
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>Main Category</TableHead>
               <TableHead>Category</TableHead>
+              <TableHead>Mark</TableHead>
               <TableHead>featured</TableHead>
               <TableHead>Created at</TableHead>
               <TableHead>Actions</TableHead>
@@ -110,7 +112,12 @@ export default function AdminProductsTable({
           </TableHeader>
           <TableBody>
             {data.map((item) => (
-              <TableItem categories={categories} key={item.id} product={item} />
+              <TableItem
+                mainCategories={mainCategories}
+                categories={categories}
+                key={item.id}
+                product={item}
+              />
             ))}
           </TableBody>
         </Table>
@@ -124,12 +131,14 @@ export default function AdminProductsTable({
 interface TableItemProps {
   product: Awaited<ReturnType<typeof getProducts>>["data"][0];
   categories: Awaited<ReturnType<typeof getAllCategories>>;
+  mainCategories: Awaited<ReturnType<typeof getAllMainCategories>>;
 }
-const TableItem = ({ product, categories }: TableItemProps) => {
+const TableItem = ({ product, mainCategories, categories }: TableItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <UpdateProductModal
+        mainCategories={mainCategories}
         categories={categories}
         closeModal={() => setIsOpen(false)}
         open={isOpen}
@@ -141,11 +150,16 @@ const TableItem = ({ product, categories }: TableItemProps) => {
           {product.name.length > 20 && "..."}
         </TableCell>
 
+        <TableCell>
+          {mainCategories.find((mc) => mc.id == product.mainCategoryId)?.name}
+          {product.mainCategoryId}
+        </TableCell>
 
         <TableCell>
           {categories.find((category) => category.id === product.categoryId)
             ?.name || "Unknown"}
         </TableCell>
+        <TableCell>{product.mark}</TableCell>
         <TableCell>
           {product.isFeatured ? (
             <Check className="w-5 h-5" />

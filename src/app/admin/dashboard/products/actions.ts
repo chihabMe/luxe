@@ -165,6 +165,7 @@ export const createProduct = actionClient
           mark: parsedInput.mark,
           isFeatured: parsedInput.isFeatured,
           categoryId: foundCategory.id,
+          mainCategoryId:foundMainCategory.id
         })
         .returning({ id: products.id });
 
