@@ -1,53 +1,12 @@
-"use client"
-
 import * as motion from "motion/react-m"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ChevronRight } from "lucide-react"
+import { getAllMainCategories } from "@/app/data/main-categories-data"
 
-const categories = [
-  {
-    name: "Robes",
-    description: "Élégantes & Casual",
-    image: "/category.webp",
-    itemCount: 248,
-    gradient: "from-[#FF7B7B] to-[#FFB6C1]",
-  },
-  {
-    name: "Manteaux",
-    description: "Pour Toutes Saisons",
-    image: "/category.webp",
-    itemCount: 186,
-    gradient: "from-[#4A90E2] to-[#357ABD]",
-  },
-  {
-    name: "Chaussures",
-    description: "Confort & Style",
-    image: "/category.webp",
-    itemCount: 312,
-    gradient: "from-[#50C878] to-[#3CB371]",
-  },
-  {
-    name: "Accessoires",
-    description: "Détails Parfaits",
-    image: "/category.webp",
-    itemCount: 425,
-  },
-  {
-    name: "Sport",
-    description: "Performance & Mode",
-    image: "/category.webp",
-    itemCount: 167,
-  },
-  {
-    name: "Beauté",
-    description: "Soins & Bien-être",
-    image: "/hero-image-1.webp",
-    itemCount: 193,
-  },
-]
-
-export function CategoryNav() {
+export async function CategoryNav() {
+  const mainCategories = await getAllMainCategories()
+  
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
@@ -57,72 +16,108 @@ export function CategoryNav() {
             Découvrez notre sélection de vêtements et accessoires pour tous les styles
           </p>
         </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
-          {categories.map((category, index) => (
-            <Link href={`/categories/${category.name.toLowerCase()}`} key={category.name}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="group relative flex flex-col items-center"
-              >
-                {/* Main card with gradient overlay */}
-                <motion.div whileHover={{ y: -5 }} className="relative w-full pt-[125%] rounded-2xl overflow-hidden">
-                  {/* Background Image */}
-                  <div className="absolute inset-0">
-                    <Image
-                      src={category.image || "/placeholder.svg"}
-                      alt={category.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  </div>
-
-                  {/* Gradient Overlay - bottom gray for text visibility */}
-                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-gray-500/80 to-transparent" />
-
-                  {/* Content Overlay */}
-                  <div className="absolute inset-0 p-4 flex flex-col justify-between text-white">
+        
+        {/* Main Categories with Subcategories */}
+        <div className="space-y-16">
+          {mainCategories.filter(main => main.isActive && main.categories.length > 0).map((mainCategory, mainIndex) => (
+            <div key={mainCategory.id} className="space-y-8">
+              {/* Main Category Heading */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-2xl font-bold">{mainCategory.name}</h3>
+                  <div className="h-px w-12 bg-gray-300"></div>
+                  <span className="text-sm text-gray-500">{mainCategory.categories.length} collections</span>
+                </div>
+                <Link 
+                  href={`/products/${mainCategory.slug}`} 
+                  className="flex items-center gap-1 text-sm font-medium text-[#FF7B7B] hover:underline"
+                >
+                  Voir tout <ChevronRight className="h-4 w-4" />
+                </Link>
+              </div>
+              
+              {/* Subcategories Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {mainCategory.categories.map((category, index) => (
+                  <Link href={`/products/${mainCategory.slug}/${category.slug}`} key={category.id}>
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      whileHover={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="text-sm font-medium opacity-0 group-hover:opacity-100"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.05 + mainIndex * 0.1 }}
+                      className="group relative flex flex-col"
                     >
-                      {category.description}
+                      {/* Main card with gradient overlay */}
+                      <motion.div 
+                        whileHover={{ y: -5 }} 
+                        className="relative w-full aspect-[3/4] rounded-lg overflow-hidden shadow-sm"
+                      >
+                        {/* Background Image */}
+                        <div className="absolute inset-0">
+                          <Image
+                            src={category.image || "/placeholder.svg"}
+                            alt={category.name}
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        </div>
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-gray-900/80 to-transparent" />
+                        
+                        {/* Featured Tag if applicable */}
+                        {category.isFeatured && (
+                          <div className="absolute top-3 left-3 bg-[#FF7B7B] text-white text-xs font-medium px-2 py-1 rounded">
+                            Populaire
+                          </div>
+                        )}
+                        
+                        {/* Content Overlay */}
+                        <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
+                          <div className="space-y-1 relative z-10">
+                            <h4 className="text-base font-semibold tracking-wide">{category.name}</h4>
+                            <div className="flex items-center text-xs font-medium opacity-90 pt-1">
+                              <span className="flex items-center gap-1">Découvrir <ArrowRight className="w-3 h-3" /></span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Hover Effect Circle */}
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          whileHover={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.3 }}
+                          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 
+                                   backdrop-blur-sm opacity-0 group-hover:opacity-100 
+                                   flex items-center justify-center"
+                        >
+                          <ArrowRight className="w-4 h-4 text-white" />
+                        </motion.div>
+                      </motion.div>
+                      
+                      {/* Bottom shine effect */}
+                      <motion.div
+                        initial={{ width: "0%", opacity: 0 }}
+                        whileHover={{ width: "100%", opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute -bottom-1 left-0 h-[2px] bg-gradient-to-r from-transparent 
+                                 via-[#FF7B7B]/50 to-transparent opacity-0"
+                      />
                     </motion.div>
-
-                    <div className="space-y-1 relative z-10">
-                      <h3 className="text-lg font-semibold tracking-wide">{category.name}</h3>
-                      <p className="text-sm font-medium opacity-90">{category.itemCount} articles</p>
-                    </div>
-                  </div>
-
-                  {/* Hover Effect Circle */}
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    whileHover={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 
-                             backdrop-blur-sm opacity-0 group-hover:opacity-100 
-                             flex items-center justify-center"
-                  >
-                    <ArrowRight className="w-4 h-4 text-white" />
-                  </motion.div>
-                </motion.div>
-
-                {/* Bottom shine effect */}
-                <motion.div
-                  initial={{ width: "0%", opacity: 0 }}
-                  whileHover={{ width: "100%", opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute -bottom-1 left-0 h-[2px] bg-gradient-to-r from-transparent 
-                           via-white/50 to-transparent opacity-0"
-                />
-              </motion.div>
-            </Link>
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
+        </div>
+        
+        {/* Call to Action */}
+        <div className="mt-16 text-center">
+          <Link 
+            href="/products" 
+            className="inline-flex items-center gap-2 bg-[#FF7B7B] hover:bg-[#ff6b6b] text-white px-6 py-3 rounded-full font-medium transition-colors"
+          >
+            Découvrir toutes nos collections
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </section>
