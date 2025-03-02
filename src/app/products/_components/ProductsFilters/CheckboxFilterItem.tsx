@@ -3,6 +3,7 @@ import React from "react";
 
 const CheckboxFilterItem = ({
   count,
+  checked,
   id,
   label,
   onChange,
@@ -11,10 +12,12 @@ const CheckboxFilterItem = ({
   label: string;
   count: number;
   onChange: (mark: string) => void;
+  checked:boolean;
 }) => {
   return (
     <div className="flex items-center space-x-2">
       <Checkbox
+      checked={checked}
         onCheckedChange={() => {
           onChange(id);
         }}

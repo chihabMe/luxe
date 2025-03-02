@@ -1,4 +1,5 @@
 "use client";
+
 import { getProductMarks } from "@/app/data/products-data";
 import {
   Card,
@@ -6,7 +7,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import React, { useEffect } from "react";
+import React from "react";
 import ProductFilterSection from "./ProductFilterSection";
 import CheckboxFilterItem from "./CheckboxFilterItem";
 import { Button } from "@/components/ui/button";
@@ -18,34 +19,32 @@ const MarksFilters = ({
   marks: Awaited<ReturnType<typeof getProductMarks>>;
 }) => {
   const searchParams = useSearchParams();
-  const mark = searchParams.get("mark");
-  const [selectedMarks, setSelectedMarks] = React.useState<string[]>(
-    mark ? [mark] : []
-  );
   const router = useRouter();
-  const { categories } = useParams() as {
-    categories: string[];
-  };
+  const { categories } = useParams() as { categories: string[] };
   const mainCategory = categories[0];
   const subCategory = categories[1];
+
+  const selectedMarks = searchParams.get("mark")?.split(",") || [];
+
   const handleMarkChange = (mark: string) => {
-    console.log("add or no add", mark);
-    if (selectedMarks.includes(mark)) {
-      setSelectedMarks(selectedMarks.filter((m) => m !== mark));
+    const newSelectedMarks = selectedMarks.includes(mark)
+      ? selectedMarks.filter((m) => m !== mark)
+      : [...selectedMarks, mark];
+
+    // Update URL without pushing a new history entry
+    const params = new URLSearchParams(searchParams);
+    if (newSelectedMarks.length > 0) {
+      params.set("mark", newSelectedMarks.join(","));
     } else {
-      setSelectedMarks([...selectedMarks, mark]);
+      params.delete("mark");
     }
+    router.replace(`/products/${mainCategory}/${subCategory}?${params.toString()}`);
   };
-  useEffect(() => {
-    console.log(mainCategory, subCategory, selectedMarks);
-    if (mainCategory && subCategory && selectedMarks.length > 0) {
-      router.push(
-        `/products/${mainCategory}/${subCategory}?mark=${selectedMarks.join(
-          ","
-        )}`
-      );
-    }
-  }, [selectedMarks, searchParams]);
+
+  const handleApplyFilters = () => {
+    // Force a refresh or update the product list
+    router.refresh();
+  };
 
   return (
     <Card className="mt-6">
@@ -63,6 +62,7 @@ const MarksFilters = ({
                   id={mark.mark}
                   label={mark.mark}
                   count={mark.count}
+                  checked={selectedMarks.includes(mark.mark)}
                 />
               ))}
             </div>
@@ -70,7 +70,10 @@ const MarksFilters = ({
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full bg-black text-white hover:bg-gray-800">
+        <Button
+          className="w-full bg-black text-white hover:bg-gray-800"
+          onClick={handleApplyFilters}
+        >
           Appliquer les filtres
         </Button>
       </CardFooter>

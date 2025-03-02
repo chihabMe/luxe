@@ -5,32 +5,31 @@ import ProductGrid from "../_components/product-grid";
 import { Navbar } from "@/components/layout/navbar/navbar";
 import { getAllMainCategories } from "@/app/data/main-categories-data";
 import { getProductMarks, searchAndFilterInAllProducts } from "@/app/data/products-data";
+
 const parseFilterParams = (value?: string) => {
-  return value? value.split(","):[];
+  return value ? value.split(",") : [];
 };
 
 export default async function ProductsPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ categories: string[] }>;
-
-  searchParams: Promise<{ marks: string; q: string }>;
+  params: { categories: string[] };
+  searchParams: { marks?: string; q?: string };
 }) {
-  const { categories } = await params;
-  const mainCategory = categories ? categories[0] : undefined;
-  const subCategory = categories ? categories[1] : undefined;
+  const { categories } = params;
+  const mainCategory = categories?.[0];
+  const subCategory = categories?.[1];
   const mainCategories = await getAllMainCategories();
   const marks = await getProductMarks();
-  const { marks: marksParams, q } = await searchParams;
-  const parsedMarks = parseFilterParams(marksParams);
+  const parsedMarks = parseFilterParams(searchParams.marks);
+
   const products = await searchAndFilterInAllProducts({
-    q,
+    q: searchParams.q,
     mainCategorySlug: mainCategory,
     category: subCategory,
     marks: parsedMarks,
-  })
-
+  });
 
   return (
     <>
@@ -42,8 +41,6 @@ export default async function ProductsPage({
             <CategoriesNavigation />
           </div>
         </div>
-
-        {/* <PromotionalBanner /> */}
 
         <div className="container mx-auto px-4 py-8">
           {/* Page title and filters */}
