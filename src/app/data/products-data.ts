@@ -50,7 +50,7 @@ export const searchAndFilterInAllProducts = cache(
 
     // Filter by product marks
     if (marks && marks.length > 0) {
-      filters.push(inArray(products.mark, marks));
+      filters.push(inArray(products.markSlug, marks));
     }
 
     // Handle main category filtering
@@ -59,14 +59,14 @@ export const searchAndFilterInAllProducts = cache(
       const mainCategory = await db.query.mainCategories.findFirst({
         where: eq(mainCategories.slug, mainCategorySlug),
         with: {
-          categories: true
-        }
+          categories: true,
+        },
       });
 
       if (mainCategory) {
         // Get all category IDs belonging to this main category
-        const categoryIds = mainCategory.categories.map(cat => cat.id);
-        
+        const categoryIds = mainCategory.categories.map((cat) => cat.id);
+
         if (categoryIds.length > 0) {
           filters.push(inArray(products.categoryId, categoryIds));
         }
@@ -75,17 +75,17 @@ export const searchAndFilterInAllProducts = cache(
 
     // Handle category filtering - now supports both single category and array of categories
     if (categorySlug) {
-      const categorySlugs = Array.isArray(categorySlug) 
-        ? categorySlug 
+      const categorySlugs = Array.isArray(categorySlug)
+        ? categorySlug
         : [categorySlug];
-      
+
       // Find all matching categories
       const matchingCategories = await db.query.categories.findMany({
         where: inArray(categories.slug, categorySlugs),
       });
-      
-      const categoryIds = matchingCategories.map(cat => cat.id);
-      
+
+      const categoryIds = matchingCategories.map((cat) => cat.id);
+
       if (categoryIds.length > 0) {
         filters.push(inArray(products.categoryId, categoryIds));
       }
@@ -101,14 +101,14 @@ export const searchAndFilterInAllProducts = cache(
         images: true,
         category: {
           with: {
-            mainCategory: true
-          }
+            mainCategory: true,
+          },
         },
         specifications: {
           with: {
-            values: true
-          }
-        }
+            values: true,
+          },
+        },
       },
       orderBy: [products.createdAt],
     });
@@ -136,9 +136,13 @@ export const getAllFeaturedActiveProducts = unstable_cache(
 export const getProductMarks = unstable_cache(
   async () => {
     return await db
-      .select({ mark: products.mark, count: count() })
+      .select({
+        mark: products.mark,
+        markSlug: products.markSlug,
+        count: count(),
+      })
       .from(products)
-      .groupBy(products.mark);
+      .groupBy(products.mark, products.markSlug);
   },
   ["products_marks"],
   {

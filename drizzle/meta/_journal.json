@@ -15,6 +15,13 @@
       "when": 1740870196496,
       "tag": "0001_glossy_rhodey",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1740931168729,
+      "tag": "0002_lonely_crusher_hogan",
+      "breakpoints": true
     }
   ]
 }

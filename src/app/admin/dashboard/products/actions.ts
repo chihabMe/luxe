@@ -47,6 +47,13 @@ export const updateProduct = protectedActionClient
       const foundMainCategory = await ctx.db.query.mainCategories.findFirst({
         where: eq(mainCategories.slug, sluggedMainCategory),
       });
+      const markSlug = parsedInput.mark
+        ? slugify(parsedInput.mark, {
+            lower: true,
+            strict: true,
+            locale: "fr",
+          })
+        : undefined;
 
       const result = await ctx.db.transaction(async (tx) => {
         await tx
@@ -55,8 +62,10 @@ export const updateProduct = protectedActionClient
             name: parsedInput.name,
             description: parsedInput.description,
             mark: parsedInput.mark,
+            markSlug,
             isFeatured: parsedInput.isFeatured,
             categoryId: foundCategory?.id,
+            mainCategoryId: foundMainCategory?.id,
           })
           .where(eq(products.id, parsedInput.id));
 
@@ -143,7 +152,16 @@ export const createProduct = actionClient
   .schema(createProductSchema)
   .action(async ({ ctx, parsedInput }) => {
     try {
-      const slug = slugify(parsedInput.name);
+      const slug = slugify(parsedInput.name, {
+        lower: true,
+        strict: true,
+        locale: "fr",
+      });
+      const markSlug = slugify(parsedInput.mark, {
+        lower: true,
+        strict: true,
+        locale: "fr",
+      });
       const sluggedCategory = slugify(parsedInput.category);
       const sluggedMainCategory = slugify(parsedInput.mainCategory);
 
@@ -165,7 +183,8 @@ export const createProduct = actionClient
           mark: parsedInput.mark,
           isFeatured: parsedInput.isFeatured,
           categoryId: foundCategory.id,
-          mainCategoryId:foundMainCategory.id
+          mainCategoryId: foundMainCategory.id,
+          markSlug,
         })
         .returning({ id: products.id });
 

@@ -15,17 +15,17 @@ export default async function ProductsPage({
   searchParams,
 }: {
   params: { categories: string[] };
-  searchParams: { marks?: string; q?: string };
+  searchParams: { mark?: string; q?: string };
 }) {
   const { categories } = params;
   const mainCategory = categories?.[0];
   const subCategory = categories?.[1];
   const mainCategories = await getAllMainCategories();
   const marks = await getProductMarks();
-  const parsedMarks = parseFilterParams(searchParams.marks);
+  const parsedMarks = parseFilterParams(searchParams.mark);
 
   const products = await searchAndFilterInAllProducts({
-    q: searchParams.q,
+    q: searchParams.q??"",
     mainCategorySlug: mainCategory,
     category: subCategory,
     marks: parsedMarks,

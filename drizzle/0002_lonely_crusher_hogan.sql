@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "mark_slug" varchar(100) DEFAULT '' NOT NULL;

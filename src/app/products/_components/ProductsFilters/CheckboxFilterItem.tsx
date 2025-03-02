@@ -4,27 +4,27 @@ import React from "react";
 const CheckboxFilterItem = ({
   count,
   checked,
-  id,
+  slug,
   label,
   onChange,
 }: {
-  id: string;
+  slug: string;
   label: string;
   count: number;
-  onChange: (mark: string) => void;
-  checked:boolean;
+  onChange: (markSlug: string) => void;
+  checked: boolean;
 }) => {
   return (
     <div className="flex items-center space-x-2">
       <Checkbox
-      checked={checked}
+        checked={checked}
         onCheckedChange={() => {
-          onChange(id);
+          onChange(slug);
         }}
-        id={id}
+        id={slug}
       />
       <label
-        htmlFor={id}
+        htmlFor={slug}
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
       >
         {label} ({count})

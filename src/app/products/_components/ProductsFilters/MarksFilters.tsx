@@ -27,6 +27,7 @@ const MarksFilters = ({
   const selectedMarks = searchParams.get("mark")?.split(",") || [];
 
   const handleMarkChange = (mark: string) => {
+    console.log("mark slug",mark)
     const newSelectedMarks = selectedMarks.includes(mark)
       ? selectedMarks.filter((m) => m !== mark)
       : [...selectedMarks, mark];
@@ -59,10 +60,10 @@ const MarksFilters = ({
                 <CheckboxFilterItem
                   onChange={handleMarkChange}
                   key={mark.mark}
-                  id={mark.mark}
+                  slug={mark.markSlug}
                   label={mark.mark}
                   count={mark.count}
-                  checked={selectedMarks.includes(mark.mark)}
+                  checked={selectedMarks.includes(mark.markSlug)}
                 />
               ))}
             </div>
