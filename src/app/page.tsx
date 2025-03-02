@@ -14,9 +14,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <CategoryNav />
-      {/* <PromoBanners /> */}
-      {/* <BrandShowcase /> */}
-      <SeasonalCategories />
+      {/* <SeasonalCategories /> */}
       <ShoppingAssistant />
       <ReviewCarousel />
       <FooterCategories />

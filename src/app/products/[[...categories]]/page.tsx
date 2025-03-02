@@ -5,6 +5,8 @@ import CategoriesNavigation from "../_components/categories-navigation";
 import ProductSorting from "../_components/product-sorting";
 import ProductFilters from "../_components/product-filters";
 import ProductGrid from "../_components/product-grid";
+import { Navbar } from "@/components/layout/navbar/navbar";
+import { getAllMainCategories } from "@/app/data/main-categories-data";
 const products: Product[] = [
   {
     id: 1,
@@ -47,10 +49,13 @@ export default async function ProductsPage({
   params: Promise<{ categories: string[] }>;
 }) {
   const { categories } = await params;
-  const mainCategory = categories[0];
-  const subCategory = categories[1] ?? null;
+  const mainCategory = categories ? categories[0] : null;
+  const subCategory = categories ? categories[1] : null;
+  const mainCategories = await getAllMainCategories()
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-white">
       {/* Categories navigation */}
       <div className="border-b border-gray-200">
@@ -59,10 +64,7 @@ export default async function ProductsPage({
         </div>
       </div>
 
-      {/* Banner */}
-      <Suspense fallback={<div className="h-64 bg-pink-50 animate-pulse" />}>
-        <PromotionalBanner />
-      </Suspense>
+        {/* <PromotionalBanner /> */}
 
       <div className="container mx-auto px-4 py-8">
         {/* Page title and filters */}
@@ -82,7 +84,7 @@ export default async function ProductsPage({
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="md:col-span-1">
-            <ProductFilters />
+            <ProductFilters mainCategories={mainCategories} />
           </div>
 
           {/* Products Grid */}
@@ -92,5 +94,6 @@ export default async function ProductsPage({
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -1,5 +1,4 @@
-"use client";
-
+import { getAllMainCategories } from "@/app/data/main-categories-data";
 import { Button } from "@/components/ui/button";
 import * as motion from "motion/react-m";
 import Link from "next/link";
@@ -10,7 +9,8 @@ const fadeIn = {
   visible: { opacity: 1, transition: { duration: 0.6 } },
 };
 
-export default function CategoriesNavigation() {
+export default async function CategoriesNavigation() {
+  const mainCategories = await getAllMainCategories();
   return (
     <motion.div
       className="flex justify-center overflow-x-auto py-4 no-scrollbar"
@@ -18,14 +18,14 @@ export default function CategoriesNavigation() {
       initial="hidden"
       animate="visible"
     >
-      {categories.map((category, index) => (
+      {mainCategories.map((category) => (
         <Button
-          key={index}
+          key={category.id}
           asChild
           variant="ghost"
           className="text-sm uppercase whitespace-nowrap mr-6 last:mr-0"
         >
-          <Link href={`/products/${category}`}>{category}</Link>
+          <Link href={`/products/${category.slug}`}>{category.name}</Link>
         </Button>
       ))}
     </motion.div>
