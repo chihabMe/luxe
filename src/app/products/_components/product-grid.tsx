@@ -3,6 +3,7 @@ import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type Product from "@/app/interfaces/Product";
 import ProductCard from "./ProductCard";
+import { searchAndFilterInAllProducts } from "@/app/data/products-data";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -14,11 +15,15 @@ const containerVariants = {
   },
 };
 
-export default function ProductGrid({ products }: { products: Product[] }) {
+export default function ProductGrid({
+  products,
+}: {
+  products: Awaited<ReturnType<typeof searchAndFilterInAllProducts>>;
+}) {
   return (
     <>
       <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid min-h-[50vh] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         variants={containerVariants}
         initial="hidden"
         animate="visible"

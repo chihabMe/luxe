@@ -1,6 +1,6 @@
 import { PAGE_SIZE } from "@/constants";
 import { db } from "@/db";
-import { categories, products } from "@/db/schema";
+import { categories, mainCategories, products } from "@/db/schema";
 import { eq, and, or, gte, lte, ilike, inArray, sql, count } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
@@ -27,16 +27,15 @@ interface GetProductsParams {
 export const searchAndFilterInAllProducts = cache(
   async ({
     q,
-    sortByPrice,
-    categories: categorySlugs,
+    mainCategorySlug,
+    category: categorySlug,
     marks,
   }: {
     q?: string;
-    sortByPrice?: "asc" | "desc";
-    categories?: string[];
+    mainCategorySlug?: string;
+    category?: string | string[];
     marks?: string[];
   }) => {
-    let whereClause = undefined;
     const filters = [];
 
     // Search in name or description
@@ -49,36 +48,69 @@ export const searchAndFilterInAllProducts = cache(
       );
     }
 
+    // Filter by product marks
     if (marks && marks.length > 0) {
       filters.push(inArray(products.mark, marks));
     }
 
-    // Category filtering - now using the correct relationship
-    if (categorySlugs && categorySlugs.length > 0) {
-      // First get the category IDs for the given slugs
+    // Handle main category filtering
+    if (mainCategorySlug) {
+      // Find the main category ID by slug
+      const mainCategory = await db.query.mainCategories.findFirst({
+        where: eq(mainCategories.slug, mainCategorySlug),
+        with: {
+          categories: true
+        }
+      });
+
+      if (mainCategory) {
+        // Get all category IDs belonging to this main category
+        const categoryIds = mainCategory.categories.map(cat => cat.id);
+        
+        if (categoryIds.length > 0) {
+          filters.push(inArray(products.categoryId, categoryIds));
+        }
+      }
+    }
+
+    // Handle category filtering - now supports both single category and array of categories
+    if (categorySlug) {
+      const categorySlugs = Array.isArray(categorySlug) 
+        ? categorySlug 
+        : [categorySlug];
+      
+      // Find all matching categories
       const matchingCategories = await db.query.categories.findMany({
         where: inArray(categories.slug, categorySlugs),
       });
-
-      const categoryIds = matchingCategories.map((cat) => cat.id);
+      
+      const categoryIds = matchingCategories.map(cat => cat.id);
+      
       if (categoryIds.length > 0) {
         filters.push(inArray(products.categoryId, categoryIds));
       }
     }
 
     // Combine all filters with AND
-    if (filters.length > 0) {
-      whereClause = and(...filters);
-    }
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
 
-    // Build query
+    // Execute query with relations
     const filteredProducts = await db.query.products.findMany({
       where: whereClause,
       with: {
         images: true,
-        category: true,
-        specifications: true,
+        category: {
+          with: {
+            mainCategory: true
+          }
+        },
+        specifications: {
+          with: {
+            values: true
+          }
+        }
       },
+      orderBy: [products.createdAt],
     });
 
     return filteredProducts;
@@ -108,9 +140,9 @@ export const getProductMarks = unstable_cache(
       .from(products)
       .groupBy(products.mark);
   },
-  ["products"],
+  ["products_marks"],
   {
-    tags: ["products"],
+    tags: ["products_marks"],
   }
 );
 
@@ -189,7 +221,7 @@ export const getProducts = cache(
         },
         specifications: {
           with: {
-            values:true
+            values: true,
           },
         },
       },
