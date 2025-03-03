@@ -19,7 +19,7 @@ const itemVariants = {
 
 // Define type based on your DB schema to improve type safety
 interface ProductCardProps {
-  product: Awaited<ReturnType<typeof searchAndFilterInAllProducts>>[0];
+  product: Awaited<ReturnType<typeof searchAndFilterInAllProducts>>["data"][0];
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {

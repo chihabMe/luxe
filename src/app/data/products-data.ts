@@ -30,11 +30,13 @@ export const searchAndFilterInAllProducts = cache(
     mainCategorySlug,
     category: categorySlug,
     marks,
+    page,
   }: {
     q?: string;
     mainCategorySlug?: string;
     category?: string | string[];
     marks?: string[];
+    page: number;
   }) => {
     const filters = [];
 
@@ -97,6 +99,8 @@ export const searchAndFilterInAllProducts = cache(
     // Execute query with relations
     const filteredProducts = await db.query.products.findMany({
       where: whereClause,
+      limit: PAGE_SIZE,
+      offset: (page - 1) * PAGE_SIZE,
       with: {
         images: true,
         category: {
@@ -113,7 +117,23 @@ export const searchAndFilterInAllProducts = cache(
       orderBy: [products.createdAt],
     });
 
-    return filteredProducts;
+    // Get total count of filtered products
+    const totalCountResult = await db
+      .select({ count: count() })
+      .from(products)
+      .where(whereClause)
+      .execute();
+    const totalCount = totalCountResult[0]?.count ?? 0;
+
+    const pageCount = Math.ceil(totalCount / PAGE_SIZE);
+
+    return {
+      data: filteredProducts,
+      hasNext: page < pageCount,
+      hasPrev: page > 1,
+      count: totalCount,
+      pageCount,
+    };
   }
 );
 

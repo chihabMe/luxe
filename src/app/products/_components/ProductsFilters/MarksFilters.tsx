@@ -27,7 +27,6 @@ const MarksFilters = ({
   const selectedMarks = searchParams.get("mark")?.split(",") || [];
 
   const handleMarkChange = (mark: string) => {
-    console.log("mark slug",mark)
     const newSelectedMarks = selectedMarks.includes(mark)
       ? selectedMarks.filter((m) => m !== mark)
       : [...selectedMarks, mark];
@@ -36,6 +35,7 @@ const MarksFilters = ({
     const params = new URLSearchParams(searchParams);
     if (newSelectedMarks.length > 0) {
       params.set("mark", newSelectedMarks.join(","));
+      params.set("page","1")
     } else {
       params.delete("mark");
     }

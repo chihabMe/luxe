@@ -4,7 +4,10 @@ import ProductFilters from "../_components/ProductsFilters/product-filters";
 import ProductGrid from "../_components/product-grid";
 import { Navbar } from "@/components/layout/navbar/navbar";
 import { getAllMainCategories } from "@/app/data/main-categories-data";
-import { getProductMarks, searchAndFilterInAllProducts } from "@/app/data/products-data";
+import {
+  getProductMarks,
+  searchAndFilterInAllProducts,
+} from "@/app/data/products-data";
 
 const parseFilterParams = (value?: string) => {
   return value ? value.split(",") : [];
@@ -14,21 +17,23 @@ export default async function ProductsPage({
   params,
   searchParams,
 }: {
-  params: { categories: string[] };
-  searchParams: { mark?: string; q?: string };
+  params: Promise<{ categories: string[] }>;
+  searchParams: Promise<{ mark?: string; q?: string; page?: string }>;
 }) {
-  const { categories } = params;
+  const { categories } = await params;
   const mainCategory = categories?.[0];
   const subCategory = categories?.[1];
   const mainCategories = await getAllMainCategories();
   const marks = await getProductMarks();
-  const parsedMarks = parseFilterParams(searchParams.mark);
+  const { mark, q, page } = await searchParams;
+  const parsedMarks = parseFilterParams(mark);
 
   const products = await searchAndFilterInAllProducts({
-    q: searchParams.q??"",
+    q,
     mainCategorySlug: mainCategory,
     category: subCategory,
     marks: parsedMarks,
+    page: parseInt(page ?? "1"),
   });
 
   return (
@@ -49,7 +54,7 @@ export default async function ProductsPage({
               <h1 className="text-2xl font-bold mb-2">
                 {mainCategory} {subCategory ? subCategory : "aucune catégorie"}
               </h1>
-              <p className="text-gray-600">{products.length} produits</p>
+              <p className="text-gray-600">{products.data.length} produits</p>
             </div>
           </div>
 
@@ -62,7 +67,10 @@ export default async function ProductsPage({
 
             {/* Products Grid */}
             <div className="md:col-span-3">
-              <ProductGrid products={products} />
+              <ProductGrid
+                currentPage={parseInt(page ?? "1")}
+                products={products}
+              />
             </div>
           </div>
         </div>
