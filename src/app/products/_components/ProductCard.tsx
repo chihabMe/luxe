@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {  Heart   } from "lucide-react";
 import { searchAndFilterInAllProducts } from "@/app/data/products-data";
+import Link from "next/link";
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -75,6 +76,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
 
   return (
+    <Link href={`/product/${product.slug}`}>
     <motion.div
       variants={itemVariants}
       whileHover={{ y: -5, transition: { duration: 0.2 } }}
@@ -194,6 +196,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </CardContent>
       </Card>
     </motion.div>
+    </Link>
   );
 };
 

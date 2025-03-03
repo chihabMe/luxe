@@ -1,7 +1,7 @@
 import { PAGE_SIZE } from "@/constants";
 import { db } from "@/db";
 import { categories, mainCategories, products } from "@/db/schema";
-import { eq, and, or, gte, lte, ilike, inArray, sql, count } from "drizzle-orm";
+import { eq,ne, and, or, gte, lte, ilike, inArray, sql, count } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import slugify from "slugify";
@@ -209,7 +209,16 @@ export const getProductDetailWithSlug = unstable_cache(
       with: {
         images: true,
         category: true,
-        specifications: true,
+        specifications: {
+          with:{
+            values:{
+              columns:{
+                id:true,
+                value:true
+              }
+            }
+          }
+        }
       },
     });
   },
@@ -217,6 +226,41 @@ export const getProductDetailWithSlug = unstable_cache(
   { tags: ["product_details"] }
 );
 
+export const getRecommendedProducts = unstable_cache(
+  async (slug: string, limit: number = 4) => {
+    // 1. Get the current product to find its category
+    const currentProduct = await db.query.products.findFirst({
+      where: eq(products.slug, slug),
+      columns: {
+        id: true,
+        categoryId: true,
+      },
+    });
+
+    if (!currentProduct) {
+      return [];
+    }
+
+    // 2. Find other products in the same category, excluding the current product
+    const recommendedProducts = await db.query.products.findMany({
+      where: and(
+        eq(products.categoryId, currentProduct.categoryId),
+        ne(products.id, currentProduct.id)
+      ),
+      limit: limit,
+      with: {
+        images: true,
+        category: true,
+      },
+    });
+
+    return recommendedProducts;
+  },
+  ["recommended_products"],
+  {
+    tags: ["recommended_products", "product_details"],
+  }
+);
 // Get paginated products with optional search
 export const getProducts = cache(
   async ({ page, q, category, mark }: GetProductsParams) => {
