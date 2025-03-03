@@ -18,7 +18,7 @@ export default function Home() {
       <ShoppingAssistant />
       <ReviewCarousel />
       <FooterCategories />
-      <Newsletter />
+      {/* <Newsletter /> */}
       <Footer />
     </>
   );
