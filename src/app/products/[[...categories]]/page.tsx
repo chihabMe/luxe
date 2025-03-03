@@ -1,80 +1,44 @@
-import Product from "@/app/interfaces/Product";
-import CategoriesNavigation from "../_components/categories-navigation";
-import ProductFilters from "../_components/ProductsFilters/product-filters";
-import ProductGrid from "../_components/product-grid";
-import { Navbar } from "@/components/layout/navbar/navbar";
-import { getAllMainCategories } from "@/app/data/main-categories-data";
-import {
-  getProductMarks,
-  searchAndFilterInAllProducts,
-} from "@/app/data/products-data";
+import ProductGrid from "../_components/product-grid"
+import { searchAndFilterInAllProducts } from "@/app/data/products-data"
 
 const parseFilterParams = (value?: string) => {
-  return value ? value.split(",") : [];
-};
+  return value ? value.split(",") : []
+}
 
 export default async function ProductsPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ categories: string[] }>;
-  searchParams: Promise<{ mark?: string; q?: string; page?: string }>;
+  params: Promise<{ categories: string[] }>
+  searchParams: Promise<{ mark?: string; q?: string; page?: string }>
 }) {
-  const { categories } = await params;
-  const mainCategory = categories?.[0];
-  const subCategory = categories?.[1];
-  const mainCategories = await getAllMainCategories();
-  const marks = await getProductMarks();
-  const { mark, q, page } = await searchParams;
-  const parsedMarks = parseFilterParams(mark);
+  const { categories } = await params
+  const mainCategory = categories?.[0]
+  const subCategory = categories?.[1]
+  const { mark, q, page } = await searchParams
+  const parsedMarks = parseFilterParams(mark)
 
   const products = await searchAndFilterInAllProducts({
     q,
     mainCategorySlug: mainCategory,
     category: subCategory,
     marks: parsedMarks,
-    page: parseInt(page ?? "1"),
-  });
+    page: Number.parseInt(page ?? "1"),
+  })
 
   return (
     <>
-      <Navbar />
-      <div className="min-h-screen bg-white">
-        {/* Categories navigation */}
-        <div className="border-b border-gray-200">
-          <div className="container mx-auto px-4">
-            <CategoriesNavigation />
-          </div>
-        </div>
-
-        <div className="container mx-auto px-4 py-8">
-          {/* Page title and filters */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <div>
-              <h1 className="text-2xl font-bold mb-2">
-                {mainCategory} {subCategory ? subCategory : "aucune catégorie"}
-              </h1>
-              <p className="text-gray-600">{products.data.length} produits</p>
-            </div>
-          </div>
-
-          {/* Sidebar and Products */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Sidebar */}
-            <div className="md:col-span-1">
-              <ProductFilters marks={marks} mainCategories={mainCategories} />
-            </div>
-
-            {/* Products Grid */}
-            <div className="md:col-span-3">
-              <ProductGrid
-                currentPage={parseInt(page ?? "1")}
-                products={products}
-              />
-            </div>
-          </div>
-        </div>
+      {/* Page title and filters */}
+      <div className="flex flex-col mb-6">
+        <h1 className="text-xl md:text-2xl font-bold mb-1">
+          {mainCategory} {subCategory ? `- ${subCategory}` : ""}
+        </h1>
+        <p className="text-sm text-gray-600">{products.data.length} produits</p>
       </div>
+
+      {/* Products Grid */}
+      <ProductGrid currentPage={Number.parseInt(page ?? "1")} products={products} />
     </>
-  );
+  )
 }
+

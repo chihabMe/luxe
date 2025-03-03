@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import ProductFilterSection from "./ProductFilterSection";
 import CheckboxFilterItem from "./CheckboxFilterItem";
 import { Button } from "@/components/ui/button";
@@ -21,31 +21,44 @@ const MarksFilters = ({
   const searchParams = useSearchParams();
   const router = useRouter();
   const { categories } = useParams() as { categories: string[] };
-  const mainCategory = categories[0];
-  const subCategory = categories[1];
 
-  const selectedMarks = searchParams.get("mark")?.split(",") || [];
+  // Ensure categories are defined
+  const mainCategory = categories?.[0] || "";
+  const subCategory = categories?.[1] || "";
 
-  const handleMarkChange = (mark: string) => {
-    const newSelectedMarks = selectedMarks.includes(mark)
-      ? selectedMarks.filter((m) => m !== mark)
-      : [...selectedMarks, mark];
+  // Get selected marks from URL
+  const selectedMarks = useMemo(
+    () => searchParams.get("mark")?.split(",") || [],
+    [searchParams]
+  );
 
-    // Update URL without pushing a new history entry
-    const params = new URLSearchParams(searchParams);
-    if (newSelectedMarks.length > 0) {
-      params.set("mark", newSelectedMarks.join(","));
-      params.set("page","1")
-    } else {
-      params.delete("mark");
-    }
-    router.replace(`/products/${mainCategory}/${subCategory}?${params.toString()}`);
-  };
+  // Handle mark selection changes
+  const handleMarkChange = useCallback(
+    (markSlug: string) => {
+      const newSelectedMarks = selectedMarks.includes(markSlug)
+        ? selectedMarks.filter((m) => m !== markSlug)
+        : [...selectedMarks, markSlug];
 
-  const handleApplyFilters = () => {
-    // Force a refresh or update the product list
-    router.refresh();
-  };
+      // Update URL with new selected marks
+      const params = new URLSearchParams(searchParams);
+      if (newSelectedMarks.length > 0) {
+        params.set("mark", newSelectedMarks.join(","));
+      } else {
+        params.delete("mark");
+      }
+      // Reset pagination to page 1 when filters change
+      params.set("page", "1");
+
+      // Update URL without pushing a new history entry
+      router.replace(`/products/${mainCategory}/${subCategory}?${params.toString()}`);
+    },
+    [selectedMarks, searchParams, mainCategory, subCategory, router]
+  );
+
+  // Handle "Apply Filters" button click
+  const handleApplyFilters = useCallback(() => {
+    router.refresh(); // Refresh the page to apply filters
+  }, [router]);
 
   return (
     <Card className="mt-6">
@@ -58,26 +71,18 @@ const MarksFilters = ({
             <div className="pl-2 space-y-2">
               {marks.map((mark) => (
                 <CheckboxFilterItem
-                  onChange={handleMarkChange}
-                  key={mark.mark}
+                  key={mark.markSlug}
                   slug={mark.markSlug}
                   label={mark.mark}
                   count={mark.count}
                   checked={selectedMarks.includes(mark.markSlug)}
+                  onChange={handleMarkChange}
                 />
               ))}
             </div>
           </ProductFilterSection>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button
-          className="w-full bg-black text-white hover:bg-gray-800"
-          onClick={handleApplyFilters}
-        >
-          Appliquer les filtres
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
