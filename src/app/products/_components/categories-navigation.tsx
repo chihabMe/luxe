@@ -2,7 +2,6 @@ import { getAllMainCategories } from "@/app/data/main-categories-data";
 import { Button } from "@/components/ui/button";
 import * as motion from "motion/react-m";
 import Link from "next/link";
-const categories = ["tout", "homme", "enfants", "filles"];
 
 const fadeIn = {
   hidden: { opacity: 0 },

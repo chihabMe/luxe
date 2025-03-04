@@ -112,10 +112,9 @@ interface TableItemProps {
   category: Awaited<ReturnType<typeof getMainCategories>>["data"][0];
 }
 const TableItem = ({ category }: TableItemProps) => {
-  const [isOpen, setIsOpen] = useState(false);
   return (
     <>
-      <TableRow onClick={() => setIsOpen(true)} key={category.id}>
+      <TableRow  key={category.id}>
         <TableCell className=" md:min-w-32">
           {category.name.slice(0, 20)}
           {category.name.length > 20 && "..."}

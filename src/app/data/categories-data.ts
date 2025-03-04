@@ -49,19 +49,25 @@ export const getAllActiveCategories = unstable_cache(
 export const getAllCategories = unstable_cache(
   async () => {
     const all_categories = await db.query.categories.findMany({});
-    const all_categories_with_products_count = await Promise.all(
+    const all_categories_with_details = await Promise.all(
       all_categories.map(async (c) => {
         const productsCount = await db
           .select({ count: count() })
           .from(products)
           .where(eq(products.categoryId, c.id));
+        
+        const mainCategory = await db.query.categories.findFirst({
+          where: eq(categories.id, c.mainCategoryId), // Assuming mainCategoryId column exists in your schema
+        });
+
         return {
           ...c,
           products_count: productsCount[0].count,
+          mainCategory,
         };
       })
     );
-    return all_categories_with_products_count;
+    return all_categories_with_details;
   },
   ["categories"],
   {

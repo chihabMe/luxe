@@ -2,15 +2,36 @@
 import React from "react";
 import { Navbar } from "@/components/layout/navbar/navbar";
 import Footer from "@/components/Footer";
-import { getProductDetailWithSlug, getRecommendedProducts } from "@/app/data/products-data";
+import { getAllProducts, getProductDetailWithSlug, getRecommendedProducts } from "@/app/data/products-data";
 import { notFound } from "next/navigation";
 import ProductImageGallery from "../_components/ProductImageGallery";
 import ProductInfo from "../_components/ProductInfo";
 import RecommendedProducts from "../_components/RecommendedProducts";
 
-// Sample recommended products data
+export async function generateStaticParams() {
+  const products = await getAllProducts(); 
+  return products.map(product => ({
+    slug: product.slug,
+  }));
+}
 
-const ProductDetails = async ({ params }: { params: { slug: string } }) => {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const {slug } = await params;
+  const product = await getProductDetailWithSlug(slug);
+  if (!product) return {};
+
+  return {
+    title: `${product.name} - Achetez maintenant sur notre boutique en ligne`,
+    description: `Découvrez ${product.name} et achetez-le dès aujourd'hui. ${product.description}`,
+    openGraph: {
+      title: `${product.name} - Achetez maintenant sur notre boutique en ligne`,
+      description: `Découvrez ${product.name} et achetez-le dès aujourd'hui. ${product.description}`,
+      images: product.images.map(img => img.url),
+    },
+  };
+}
+
+const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
   // Fetch product data
   const {slug} = await params
   const product = await getProductDetailWithSlug(slug);

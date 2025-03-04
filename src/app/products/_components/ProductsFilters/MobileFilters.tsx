@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger  } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { FilterIcon, X } from 'lucide-react';
+import { FilterIcon} from 'lucide-react';
 import ProductFilters from "./product-filters";
 import * as motion from "motion/react-m";
 import { getAllMainCategories } from "@/app/data/main-categories-data";

@@ -24,13 +24,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
 // import { useToast } from "@/hooks/use-toast";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteUser } from "../actions";
 import CreateUserModal from "@/components/modals/CreateUserModal";
+import { toast } from "sonner";
 
 // import { deleteEmailAction } from "../actions";
 
@@ -125,7 +125,6 @@ interface UserActionsMenuProps {
 }
 
 export const UserActionsMenu = ({ userId }: UserActionsMenuProps) => {
-  const { toast } = useToast();
 
   return (
     <DropdownMenu>
@@ -145,14 +144,13 @@ export const UserActionsMenu = ({ userId }: UserActionsMenuProps) => {
                 id: userId,
               });
               if (result?.data?.success) {
-                toast({
-                  title: "User deleted",
-                });
+                toast(
+                   "User deleted",
+                );
               } else {
-                toast({
-                  title: "Failed to delete user",
-                  variant: "destructive",
-                });
+                toast(
+                   "Failed to delete user",
+                );
               }
             }}
           >

@@ -43,6 +43,7 @@ export function MobileMenuCategory({
               <div className="grid grid-cols-2 gap-1">
                 {category.categories.map((item) => (
                   <Link
+                    key={item.id}
                     id={item.id}
                     href={`/products/${category.slug}/${item.slug}`}
                     className="text-sm py-1 text-muted-foreground hover:text-[#FF7B7B] transition-colors"

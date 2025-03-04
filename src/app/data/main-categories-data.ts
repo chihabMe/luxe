@@ -1,9 +1,8 @@
 import { PAGE_SIZE } from "@/constants";
 import { db } from "@/db";
 import { mainCategories, selectMainCategorySchema } from "@/db/schema";
-import { protectedActionClient } from "@/lib/safe-actions";
-import { and, eq, sql } from "drizzle-orm";
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { and,  sql } from "drizzle-orm";
+import {  unstable_cache } from "next/cache";
 import { cache } from "react";
 import { z } from "zod";
 

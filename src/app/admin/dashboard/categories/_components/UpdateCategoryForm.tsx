@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Image from "next/image";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -253,7 +254,9 @@ const UpdateCategoryForm = ({
                       <CardContent className="flex flex-col items-center justify-center p-6 space-y-4">
                         {imagePreview ? (
                           <div className="relative">
-                            <img
+                            <Image
+                              width={400}
+                              height={400}
                               src={imagePreview?.url ?? ""}
                               alt="Preview"
                               className="w-full h-64 object-cover rounded-md"

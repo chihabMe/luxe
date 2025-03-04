@@ -6,8 +6,6 @@ import {
   ne,
   and,
   or,
-  gte,
-  lte,
   ilike,
   inArray,
   sql,
@@ -16,17 +14,6 @@ import {
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import slugify from "slugify";
-// import { z } from "zod";
-
-// interface ProductsResponse {
-//   data: Array<z.infer<typeof selectProductSchema> & {
-//     images: { url: string; cloudId: string }[];
-//   }>;
-//   hasNext: boolean;
-//   hasPrev: boolean;
-//   count: number;
-//   pageCount: number;
-// }
 
 interface GetProductsParams {
   page: number;
@@ -219,7 +206,11 @@ export const getProductDetailWithSlug = unstable_cache(
       where: eq(products.slug, decodedSlug),
       with: {
         images: true,
-        category: true,
+        category: {
+          with:{
+            mainCategory: true,
+          }
+        },
         specifications: {
           with: {
             values: {
@@ -238,7 +229,7 @@ export const getProductDetailWithSlug = unstable_cache(
 );
 
 export const getRecommendedProducts = unstable_cache(
-  async (slug: string, limit: number = 4) => {
+  async (slug: string, limit: number = 11) => {
     // 1. Get the current product to find its category
     const currentProduct = await db.query.products.findFirst({
       where: eq(products.slug, slug),
@@ -258,7 +249,7 @@ export const getRecommendedProducts = unstable_cache(
         eq(products.categoryId, currentProduct.categoryId),
         ne(products.id, currentProduct.id)
       ),
-      limit: 14,
+      limit ,
       with: {
         images: true,
         category: true,
@@ -267,7 +258,7 @@ export const getRecommendedProducts = unstable_cache(
     if (recommendedProducts.length == 0) {
       recommendedProducts = await db.query.products.findMany({
         where: eq(products.categoryId, currentProduct.categoryId),
-        limit: 14,
+        limit,
         with: {
           images: true,
           category: true,

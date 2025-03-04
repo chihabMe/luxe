@@ -1,7 +1,5 @@
 import { PagePaginator } from "@/components/PagePaginator";
-import { getCategories } from "@/app/data/categories-data";
 import {
-  getAllMainCategories,
   getMainCategories,
 } from "@/app/data/main-categories-data";
 import AdminMainCategoryTable from "./_components/AdminMainCategoriesTable";

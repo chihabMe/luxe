@@ -30,6 +30,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { generateUploadSignature } from "@/utils/generateUploadSignature";
+import { getAllMainCategories } from "@/app/data/main-categories-data";
+import Image from "next/image";
 
 const MAX_CHARS = 2000;
 
@@ -71,7 +73,7 @@ const UpdateProductForm = ({
     specifications: Array<{ name: string; values: string[] }>;
   };
   categories: Awaited<ReturnType<typeof getAllCategories>>;
-  mainCategories?: any[];
+  mainCategories?: Awaited<ReturnType<typeof getAllMainCategories>>;
 }) => {
   const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>(
     initialData.images.map((img) => ({
@@ -510,7 +512,9 @@ const UpdateProductForm = ({
                               preview.isMain ? "ring-2 ring-blue-500" : ""
                             }`}
                           >
-                            <img
+                            <Image
+                            width={400}
+                            height={400}
                               src={preview.url ?? ""}
                               alt="Preview"
                               className="w-full h-32 object-cover rounded-md"

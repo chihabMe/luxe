@@ -1,16 +1,10 @@
 "use client";
 
 import { getProductMarks } from "@/app/data/products-data";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import React, { useCallback, useMemo } from "react";
 import ProductFilterSection from "./ProductFilterSection";
 import CheckboxFilterItem from "./CheckboxFilterItem";
-import { Button } from "@/components/ui/button";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 const MarksFilters = ({
@@ -50,15 +44,12 @@ const MarksFilters = ({
       params.set("page", "1");
 
       // Update URL without pushing a new history entry
-      router.replace(`/products/${mainCategory}/${subCategory}?${params.toString()}`);
+      router.replace(
+        `/products/${mainCategory}/${subCategory}?${params.toString()}`
+      );
     },
     [selectedMarks, searchParams, mainCategory, subCategory, router]
   );
-
-  // Handle "Apply Filters" button click
-  const handleApplyFilters = useCallback(() => {
-    router.refresh(); // Refresh the page to apply filters
-  }, [router]);
 
   return (
     <Card className="mt-6">

@@ -30,7 +30,7 @@ export async function Hero() {
                 aux <span className="text-[#FF5A5A]">nouveautés</span>
               </h1>
               <p className="text-lg text-gray-700 max-w-xl mt-4" itemProp="description">
-                Découvrez notre nouvelle collection printemps 2025 et profitez de réductions exclusives jusqu'à 30%
+                Découvrez notre nouvelle collection printemps 2025 et profitez de réductions exclusives jusqu&apso; à 30%
               </p>
               <meta itemProp="brand" content="Your Brand Name" />
             </div>

@@ -1,7 +1,7 @@
 import { db } from ".";
 import slugify from "slugify";
 import { v4 as uuidv4 } from "uuid";
-import { Faker, fakerFR as faker} from '@faker-js/faker';
+import {  fakerFR as faker} from '@faker-js/faker';
 import { 
   mainCategories, 
   categories, 
@@ -77,8 +77,8 @@ const categoryNames = {
 };
 
 // Generate placeholder image URLs
-const generateImageUrl = (category: string, index: number) => {
-  return `https://source.unsplash.com/random/800x600/?${category}&sig=${index}`;
+const generateImageUrl = () => {
+  return `https://picsum.photos/800/800`;
 };
 
 // Generate a unique slug
@@ -180,7 +180,7 @@ for (const [mainCategorySlug, mainCategoryId] of Object.entries(mainCategoryIds)
                 id: categoryId,
                 name: categoryName,
                 slug: categorySlug,
-                image: generateImageUrl(categoryName, Math.floor(Math.random() * 1000)),
+                image: generateImageUrl(),
                 isFeatured: Math.random() > 0.7, // 30% chance of being featured
                 mainCategoryId: mainCategoryId
             });
@@ -279,7 +279,7 @@ for (const [mainCategorySlug, mainCategoryId] of Object.entries(mainCategoryIds)
       await db.insert(productImages).values({
         id: uuidv4(),
         productId,
-        url: generateImageUrl(`${mainCategorySlug}-${categoryName}`, productCount * 10 + i),
+        url: generateImageUrl(),
         cloudId,
         isMain: i === mainImageIndex
       });

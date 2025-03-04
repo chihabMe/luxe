@@ -14,16 +14,15 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { createUser } from "../actions";
 import { insertUserSchema } from "@/db/schema";
+import { toast } from "sonner";
+import { createUser } from "../actions";
 const initialValues: z.infer<typeof insertUserSchema> = {
   email: "",
   name: "",
   password: "",
 };
 const AddNewUserForm = () => {
-  const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(insertUserSchema),
     defaultValues: initialValues,
@@ -34,17 +33,10 @@ const AddNewUserForm = () => {
       ...data,
     });
     if (response?.data?.success) {
-      toast({
-        title: "Registered",
-        description: "the user can login to the admin now",
-      });
+      toast("the user can login to the admin now");
       form.reset();
     } else {
-      toast({
-        title: "Failed to register",
-        description: "cant register this user ",
-        variant: "destructive",
-      });
+      toast("cant register this user ");
     }
   };
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React  from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,10 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { z } from "zod";
-import { Card, CardContent } from "@/components/ui/card";
-import { generateUploadSignature } from "@/utils/generateUploadSignature";
 import { createMainCategory } from "../actions";
 import { toast } from "sonner";
 
@@ -27,20 +25,9 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-type ImagePreview = {
-  id: string;
-  url: string;
-  file: File;
-};
 
-type MainCategory = {
-  id: string;
-  name: string;
-  slug: string;
-};
 
 const AddNewMainCategoryForm = () => {
-  const [imagePreview, setImagePreview] = useState<ImagePreview | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -60,7 +47,6 @@ const AddNewMainCategoryForm = () => {
       if (response?.data?.success) {
         toast("Category created successfully");
         form.reset();
-        setImagePreview(null);
       } else {
         throw new Error("Failed to create category");
       }

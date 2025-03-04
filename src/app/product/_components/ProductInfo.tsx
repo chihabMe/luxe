@@ -13,6 +13,7 @@ import {
 import { Truck, Clock, Info, Check } from "lucide-react";
 import { toast } from "sonner";
 import { siteInfos } from "@/constants";
+import { getProductDetailWithSlug  } from "@/app/data/products-data";
 
 interface SpecValue {
   id: string;
@@ -25,7 +26,7 @@ interface Specification {
 }
 
 interface ProductInfoProps {
-  product: any;
+  product: NonNullable<Awaited<ReturnType<typeof getProductDetailWithSlug>>>,
   availableSizes: string[];
   color: string;
   restSpects: Specification[];
@@ -235,10 +236,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p>
-                  <strong>Référence:</strong> {product.reference || "-"}
-                </p>
-                <p>
-                  <strong>Catégorie:</strong> {product.category.name}
+                  <strong>Catégorie:</strong> {product.category.mainCategory.name} {product.category.name}
                 </p>
                 {color && (
                   <p>

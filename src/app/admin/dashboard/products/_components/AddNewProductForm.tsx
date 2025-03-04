@@ -31,6 +31,7 @@ import {
 import { getAllCategories } from "@/app/data/categories-data";
 import { generateUploadSignature } from "@/utils/generateUploadSignature";
 import { getAllMainCategories } from "@/app/data/main-categories-data";
+import Image from "next/image";
 
 const MAX_CHARS = 2000;
 
@@ -124,7 +125,7 @@ const AddNewProductForm = ({
       setShowMainCategoryForm(true);
       return;
     }
-    
+
     setShowMainCategoryForm(false);
     form.setValue("mainCategory", value);
     form.setValue("category", ""); // Reset subcategory when main category changes
@@ -136,7 +137,6 @@ const AddNewProductForm = ({
     );
     setFilteredCategories(filtered);
   };
-
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -252,11 +252,11 @@ const AddNewProductForm = ({
   const addValueToSpec = (specIndex: number) => {
     const currentSpec = form.getValues(`specifications.${specIndex}`);
     const updatedValues = [...currentSpec.values, ""];
-    
+
     // Update the specific spec with new values array
     updateSpec(specIndex, {
       name: currentSpec.name,
-      values: updatedValues
+      values: updatedValues,
     });
   };
 
@@ -264,11 +264,11 @@ const AddNewProductForm = ({
     const currentSpec = form.getValues(`specifications.${specIndex}`);
     const updatedValues = [...currentSpec.values];
     updatedValues.splice(valueIndex, 1);
-    
+
     // Update the specific spec with filtered values array
     updateSpec(specIndex, {
       name: currentSpec.name,
-      values: updatedValues
+      values: updatedValues,
     });
   };
 
@@ -374,23 +374,23 @@ const AddNewProductForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Main Category</FormLabel>
-                  <Select
-                    onValueChange={(value) => handleMainCategoryChange(value)}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a main category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {mainCategories.map((category) => (
-                        <SelectItem key={category.id} value={category.slug}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <Select
+                  onValueChange={(value) => handleMainCategoryChange(value)}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a main category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {mainCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.slug}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -405,7 +405,9 @@ const AddNewProductForm = ({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  disabled={!form.getValues("mainCategory") || showMainCategoryForm}
+                  disabled={
+                    !form.getValues("mainCategory") || showMainCategoryForm
+                  }
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -458,7 +460,10 @@ const AddNewProductForm = ({
                 <div className="ml-4 mt-2">
                   <FormLabel>Values</FormLabel>
                   {field.values.map((_, valueIndex) => (
-                    <div key={`${field.id}-value-${valueIndex}`} className="flex items-center mt-2">
+                    <div
+                      key={`${field.id}-value-${valueIndex}`}
+                      className="flex items-center mt-2"
+                    >
                       <FormField
                         control={form.control}
                         name={`specifications.${index}.values.${valueIndex}`}
@@ -548,7 +553,9 @@ const AddNewProductForm = ({
                               preview.isMain ? "ring-2 ring-blue-500" : ""
                             }`}
                           >
-                            <img
+                            <Image
+                              width={500}
+                              height={500}
                               src={preview.url ?? ""}
                               alt="Preview"
                               className="w-full h-32 object-cover rounded-md"

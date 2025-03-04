@@ -1,42 +1,18 @@
-import type React from "react"
-import { Navbar } from "@/components/layout/navbar/navbar"
-import type { Metadata } from "next"
-import { getAllMainCategories } from "@/app/data/main-categories-data"
-import { getProductMarks } from "@/app/data/products-data"
-import ProductFilters from "../_components/ProductsFilters/product-filters"
-import CategoriesNavigation from "../_components/categories-navigation"
-import MobileFilters from "../_components/ProductsFilters/MobileFilters"
-
-export async function generateMetadata({
-  params,
-}: {
-  params: { categories: string[] }
-}): Promise<Metadata> {
-  const mainCategory = params.categories?.[0]
-  const subCategory = params.categories?.[1]
-
-  const title = subCategory ? `${mainCategory} ${subCategory} | Your Store Name` : `${mainCategory} | Your Store Name`
-
-  return {
-    title,
-    description: `Browse our collection of ${mainCategory} ${subCategory ? subCategory + " " : ""}products. Find the best quality items at great prices.`,
-    openGraph: {
-      title,
-      description: `Browse our collection of ${mainCategory} ${subCategory ? subCategory + " " : ""}products. Find the best quality items at great prices.`,
-      type: "website",
-    },
-  }
-}
+import type React from "react";
+import { Navbar } from "@/components/layout/navbar/navbar";
+import { getAllMainCategories } from "@/app/data/main-categories-data";
+import { getProductMarks } from "@/app/data/products-data";
+import ProductFilters from "../_components/ProductsFilters/product-filters";
+import CategoriesNavigation from "../_components/categories-navigation";
+import MobileFilters from "../_components/ProductsFilters/MobileFilters";
 
 export default async function ProductsLayout({
   children,
-  params,
 }: {
-  children: React.ReactNode
-  params: Promise<{ categories: string[] }>
+  children: React.ReactNode;
 }) {
-  const mainCategories = await getAllMainCategories()
-  const marks = await getProductMarks()
+  const mainCategories = await getAllMainCategories();
+  const marks = await getProductMarks();
 
   return (
     <>
@@ -69,6 +45,5 @@ export default async function ProductsLayout({
         </div>
       </div>
     </>
-  )
+  );
 }
-
