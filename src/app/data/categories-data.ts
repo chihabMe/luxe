@@ -1,7 +1,7 @@
 "use server";
 import { PAGE_SIZE } from "@/constants";
 import { db } from "@/db";
-import { categories, products, selectCategorySchema } from "@/db/schema"; // Import relevant schema
+import { categories, mainCategories, products, selectCategorySchema } from "@/db/schema"; // Import relevant schema
 import { count, and, eq, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
@@ -56,8 +56,8 @@ export const getAllCategories = unstable_cache(
           .from(products)
           .where(eq(products.categoryId, c.id));
         
-        const mainCategory = await db.query.categories.findFirst({
-          where: eq(categories.id, c.mainCategoryId), // Assuming mainCategoryId column exists in your schema
+        const mainCategory = await db.query.mainCategories.findFirst({
+          where: eq(mainCategories.id, c.mainCategoryId), // Assuming mainCategoryId column exists in your schema
         });
 
         return {
