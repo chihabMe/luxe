@@ -4,6 +4,7 @@ import {
   getAllCategories,
   getCategoryDetailWithSlug,
 } from "@/app/data/categories-data";
+import { Suspense } from "react";
 export async function generateMetadata({
   params,
 }: {
@@ -51,6 +52,7 @@ export async function generateMetadata({
 }
 export const generateStaticParams = async () => {
   const categories = await getAllCategories();
+  if(!categories||categories.length==0) return [];
   return categories.map((c) => ({
     params: { categories: [c.mainCategory?.slug, c.slug] },
   }));
@@ -92,10 +94,12 @@ export default async function ProductsPage({
       </div>
 
       {/* Products Grid */}
+      <Suspense   fallback={<></>}> 
       <ProductGrid
         currentPage={Number.parseInt(page ?? "1")}
         products={products}
       />
+      </Suspense>
     </>
   );
 }

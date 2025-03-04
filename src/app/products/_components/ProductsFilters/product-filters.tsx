@@ -4,7 +4,7 @@ import * as motion from "motion/react-m"
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -161,7 +161,9 @@ export default function ProductFilters({
       </Card>
 
       {/* Marks Filter */}
+      <Suspense fallback={<></>}>
       <MarksFilters marks={marks} />
+      </Suspense>
     </div>
   )
 }
