@@ -52,10 +52,11 @@ export async function generateMetadata({
 }
 export const generateStaticParams = async () => {
   const categories = await getAllCategories();
-  if(!categories||categories.length==0) return [];
-  return categories.map((c) => ({
-    params: { categories: [c.mainCategory?.slug, c.slug] },
+  if (!categories || categories.length == 0) return [];
+  const params = categories.map((c) => ({
+    categories: [c.mainCategory?.slug, c.slug],
   }));
+  return params;
 };
 
 const parseFilterParams = (value?: string) => {
@@ -94,11 +95,11 @@ export default async function ProductsPage({
       </div>
 
       {/* Products Grid */}
-      <Suspense   fallback={<></>}> 
-      <ProductGrid
-        currentPage={Number.parseInt(page ?? "1")}
-        products={products}
-      />
+      <Suspense fallback={<></>}>
+        <ProductGrid
+          currentPage={Number.parseInt(page ?? "1")}
+          products={products}
+        />
       </Suspense>
     </>
   );
