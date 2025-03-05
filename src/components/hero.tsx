@@ -38,7 +38,7 @@ export async function Hero() {
             {/* CTA with better visual treatment */}
             <div className="flex items-center gap-4 pt-2">
               <Link
-                href="/collection"
+                href="/products"
                 className="inline-block bg-[#FF5A5A] text-white px-8 py-4 rounded-full hover:bg-[#ff3a3a] transition-all hover:shadow-lg font-medium text-lg"
                 aria-label="Découvrir la nouvelle collection"
               >

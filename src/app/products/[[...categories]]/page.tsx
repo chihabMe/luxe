@@ -22,6 +22,13 @@ export async function generateMetadata({
   const description = `Découvrez notre collection exclusive de ${mainCategory} ${
     subCategory ? subCategory + " " : ""
   }produits. Découvrez des articles de haute qualité à des prix imbattables. Achetez maintenant et élevez votre style avec Luxe.`;
+  let url = `${process.env.NEXT_PUBLIC_HOST}/products`
+  if(mainCategory){
+    url += `/${mainCategory}`
+  }
+  if(subCategory){
+    url += `/${subCategory}`
+  }
 
   return {
     title,
@@ -30,7 +37,7 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
-      url: `${process.env.NEXT_PUBLIC_HOST}/products/${categories.join("/")}`,
+      url,
       images: [
         {
           url: category?.image || "",
