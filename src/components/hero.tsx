@@ -30,7 +30,7 @@ export async function Hero() {
                 aux <span className="text-[#FF5A5A]">nouveautés</span>
               </h1>
                 <p className="text-lg text-gray-700 max-w-xl mt-4" itemProp="description">
-                Découvrez notre sélection de produits premium, conçus avec les meilleurs matériaux et un savoir-faire d'excellence pour une qualité incomparable
+                Découvrez notre sélection de produits premium, conçus avec les meilleurs matériaux et un savoir-faire d&apos;excellence pour une qualité incomparable
                 </p>
               <meta itemProp="brand" content="Your Brand Name" />
             </div>

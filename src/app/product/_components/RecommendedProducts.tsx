@@ -1,6 +1,5 @@
-// RecommendedProducts.tsx (Client Component)
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import * as motion from "motion/react-m";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,43 @@ interface RecommendedProductsProps {
 
 const RecommendedProducts: React.FC<RecommendedProductsProps> = ({ products }) => {
   const [recommendedScrollPosition, setRecommendedScrollPosition] = useState(0);
-  const maxScroll = Math.max(0, products.length - 4); // Show 4 items at a time on desktop
+  const [isMobile, setIsMobile] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Touch scrolling state
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  // Responsive design and touch scrolling logic
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Calculate max scroll with precise product and gap widths
+  const calculateMaxScroll = () => {
+    // const productWidth = 260; // Desktop width
+    // const productGap = 16; // Tailwind gap-4 is 1rem = 16px
+    const visibleProducts = isMobile ? 2 : 4;
+    
+    // Total width of all products and gaps
+    // const totalWidth = products.length * productWidth + (products.length - 1) * productGap;
+    
+    // // Visible area width (approximate container width)
+    // const visibleAreaWidth = visibleProducts * productWidth + (visibleProducts - 1) * productGap;
+    
+    // Calculate max scroll position to ensure last product is fully visible
+    const maxScrollPosition = Math.max(0, products.length - visibleProducts);
+    
+    return maxScrollPosition;
+  };
+
+  const maxScroll = calculateMaxScroll();
   
   const scrollRecommended = (direction: "left" | "right") => {
     if (direction === "left" && recommendedScrollPosition > 0) {
@@ -23,6 +58,34 @@ const RecommendedProducts: React.FC<RecommendedProductsProps> = ({ products }) =
     } else if (direction === "right" && recommendedScrollPosition < maxScroll) {
       setRecommendedScrollPosition(recommendedScrollPosition + 1);
     }
+  };
+
+  // Touch event handlers for mobile scrolling
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStart - touchEnd > 75) {
+      // Swipe left
+      scrollRecommended("right");
+    }
+
+    if (touchStart - touchEnd < -75) {
+      // Swipe right
+      scrollRecommended("left");
+    }
+  };
+  
+  // Calculate translation based on precise widths
+  const calculateTranslation = () => {
+    const productWidth = 260; // Desktop width
+    const productGap = 16; // Tailwind gap-4 is 1rem = 16px
+    return recommendedScrollPosition * (productWidth + productGap);
   };
   
   return (
@@ -35,6 +98,7 @@ const RecommendedProducts: React.FC<RecommendedProductsProps> = ({ products }) =
             size="icon"
             onClick={() => scrollRecommended("left")}
             disabled={recommendedScrollPosition === 0}
+            className="hidden md:flex"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -43,16 +107,25 @@ const RecommendedProducts: React.FC<RecommendedProductsProps> = ({ products }) =
             size="icon"
             onClick={() => scrollRecommended("right")}
             disabled={recommendedScrollPosition >= maxScroll}
+            className="hidden md:flex"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
       </div>
-      <div className="relative overflow-hidden">
+      <div 
+        className="relative overflow-hidden"
+        ref={containerRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <motion.div
-          className="flex gap-4"
+          className="flex gap-4 will-change-transform"
           initial={{ x: 0 }}
-          animate={{ x: `-${recommendedScrollPosition * 260}px` }}
+          animate={{ 
+            x: `-${calculateTranslation()}px` 
+          }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           {products.map((product) => {
@@ -62,7 +135,11 @@ const RecommendedProducts: React.FC<RecommendedProductsProps> = ({ products }) =
             return (
               <motion.div
                 key={product.id}
-                className="min-w-[240px] border rounded-md overflow-hidden"
+                className={`
+                  min-w-[240px] md:min-w-[260px] 
+                  border rounded-md overflow-hidden 
+                  flex-shrink-0
+                `}
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
               >
                 <Link href={`/product/${product.slug}`}>
