@@ -15,7 +15,7 @@ const MobileDisplay = ({
   const [showSearch, setShowSearch] = useState(false);
   return (
     <>
-      <div className="flex lg:hidden items-center gap-2">
+      <div className="flex lg:hidden items-center  justify-end gap-2">
         <button
           onClick={() => setShowSearch(!showSearch)}
           className="p-2 rounded-full hover:bg-gray-100 transition-colors"

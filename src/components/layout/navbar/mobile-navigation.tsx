@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Menu, X, ShoppingBag } from "lucide-react";
+import { Menu, X  } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -55,34 +55,12 @@ function MobileMenu({
         {mainCategories.map((category) => (
           <MobileMenuCategory 
             key={category.id} 
-            title={category.name.toUpperCase()}
-            mainCategories={mainCategories} 
+            mainCategory={category}
           />
         ))}
 
         <div className="px-4 pt-6 space-y-4">
-          <h3 className="text-sm font-semibold text-muted-foreground">
-            MON COMPTE
-          </h3>
           <nav className="space-y-3">
-            <Link
-              href="#"
-              className="block text-base py-1 hover:text-[#FF7B7B] transition-colors"
-            >
-              Se connecter
-            </Link>
-            <Link
-              href="#"
-              className="block text-base py-1 hover:text-[#FF7B7B] transition-colors"
-            >
-              Créer un compte
-            </Link>
-            <Link
-              href="#"
-              className="block text-base py-1 hover:text-[#FF7B7B] transition-colors"
-            >
-              Mes commandes
-            </Link>
             <Link
               href="#"
               className="block text-base py-1 hover:text-[#FF7B7B] transition-colors"
@@ -93,12 +71,12 @@ function MobileMenu({
         </div>
       </div>
 
-      <div className="p-4 border-t mt-auto">
+      {/* <div className="p-4 border-t mt-auto">
         <Button className="w-full bg-[#FF7B7B] hover:bg-[#ff6b6b] text-white">
           <ShoppingBag className="h-4 w-4 mr-2" />
           Mon panier
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }

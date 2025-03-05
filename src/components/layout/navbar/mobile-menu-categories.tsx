@@ -7,11 +7,9 @@ import { cn } from "@/lib/utils";
 import { getAllMainCategories } from "@/app/data/main-categories-data";
 
 export function MobileMenuCategory({
-  title,
-  mainCategories,
+  mainCategory,
 }: {
-  title: string;
-  mainCategories: Awaited<ReturnType<typeof getAllMainCategories>>;
+  mainCategory: Awaited<ReturnType<typeof getAllMainCategories>>[0];
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -21,7 +19,7 @@ export function MobileMenuCategory({
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full p-4 text-left"
       >
-        <span className="font-medium">{title}</span>
+        <span className="font-medium">{mainCategory.name.toUpperCase()}</span>
         <ChevronDown
           className={cn(
             "h-5 w-5 text-muted-foreground transition-transform duration-200",
@@ -37,25 +35,22 @@ export function MobileMenuCategory({
         )}
       >
         <div className="space-y-4">
-          {mainCategories.map((category) => (
+          {mainCategory.categories.map((category) => (
             <div key={category.name} className="space-y-2">
-              <h3 className="text-sm font-medium">{category.name}</h3>
               <div className="grid grid-cols-2 gap-1">
-                {category.categories.map((item) => (
                   <Link
-                    key={item.id}
-                    id={item.id}
-                    href={`/products/${category.slug}/${item.slug}`}
-                    className="text-sm py-1 text-muted-foreground hover:text-[#FF7B7B] transition-colors"
+                    key={category.id}
+                    id={category.id}
+                    href={`/products/${mainCategory.slug}/${category.slug}`}
+                    className="text-sm font-medium  py-1 text-muted-foreground hover:text-[#FF7B7B] transition-colors"
                   >
-                    {item.name}
+                    {category.name}
                   </Link>
-                ))}
               </div>
             </div>
           ))}
           <Link
-            href={`/products/${title.toLowerCase()}`}
+            href={`/products/${mainCategory.slug}`}
             className="block text-sm font-medium text-[#FF7B7B] hover:underline"
           >
             Voir toutes les catégories

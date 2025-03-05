@@ -29,9 +29,9 @@ export async function Hero() {
                 Faites place<br />
                 aux <span className="text-[#FF5A5A]">nouveautés</span>
               </h1>
-              <p className="text-lg text-gray-700 max-w-xl mt-4" itemProp="description">
-                Découvrez notre nouvelle collection printemps 2025 et profitez de réductions exclusives jusqu&apso; à 30%
-              </p>
+                <p className="text-lg text-gray-700 max-w-xl mt-4" itemProp="description">
+                Découvrez notre sélection de produits premium, conçus avec les meilleurs matériaux et un savoir-faire d'excellence pour une qualité incomparable
+                </p>
               <meta itemProp="brand" content="Your Brand Name" />
             </div>
             
@@ -43,16 +43,6 @@ export async function Hero() {
                 aria-label="Découvrir la nouvelle collection"
               >
                 Découvrir
-              </Link>
-              <Link
-                href="/promotions"
-                className="inline-flex items-center text-[#FF5A5A] font-medium hover:underline"
-                aria-label="Voir toutes les promotions"
-              >
-                <span>Voir les promotions</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
               </Link>
             </div>
             
@@ -109,7 +99,7 @@ export async function Hero() {
                 
                 {/* Sale badge on first image */}
                 <div className="absolute top-4 right-4 bg-[#FF5A5A] text-white text-sm font-bold py-1 px-3 rounded-full">
-                  -30%
+                  Nouveau
                 </div>
               </motion.div>
               

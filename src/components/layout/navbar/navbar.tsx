@@ -33,7 +33,7 @@ export async function Navbar() {
           </div>
           
           {/* Desktop Actions - right aligned */}
-          <div className="hidden lg:flex items-center gap-6">
+          <div className="hidden   lg:flex items-center gap-6">
             <SearchBar desktop />
             <NavIconButton
               icon={<Heart className="h-5 w-5" />}
