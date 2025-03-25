@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Heart } from "lucide-react";
+// import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DesktopNavigation } from "./desktop-navigation";
 import { SearchBar } from "./search-bar";
-import { NavIconButton } from "./nav-icon-button";
+// import { NavIconButton } from "./nav-icon-button";
 import MobileDisplay from "./MobileDisplay";
 import { getAllMainCategories } from "@/app/data/main-categories-data";
 
@@ -35,10 +35,10 @@ export async function Navbar() {
           {/* Desktop Actions - right aligned */}
           <div className="hidden   lg:flex items-center gap-6">
             <SearchBar desktop />
-            <NavIconButton
+            {/* <NavIconButton
               icon={<Heart className="h-5 w-5" />}
               label="Favoris"
-            />
+            /> */}
           </div>
           
           {/* Mobile Display */}
